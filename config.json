@@ -1,0 +1,131 @@
+{
+  "project": {
+    "name": "IQ Yazılım LoRa OTA System",
+    "version": "1.0.0",
+    "description": "STM32WL55 LoRa Gateway/Node with OTA capabilities"
+  },
+  
+  "build": {
+    "mode": "GATEWAY",
+    "options": ["GATEWAY", "NODE"],
+    "debug": true,
+    "optimization": "Debug"
+  },
+  
+  "hardware": {
+    "mcu": "STM32WL55JC",
+    "frequency": "868000000",
+    "tx_power": 14,
+    "spreading_factor": 7,
+    "bandwidth": "125kHz",
+    "coding_rate": "4/5"
+  },
+  
+  "gateway": {
+    "enabled": true,
+    "device_id": "GATEWAY_001",
+    "description": "Main LoRa Gateway with ESP32 WiFi",
+    
+    "wifi": {
+      "ssid": "EMPA_Arge",
+      "password": "Emp@Arg2024!",
+      "mode": "STATION_MODE",
+      "timeout": 30000,
+      "timezone": 3,
+      "osc_enable": false
+    },
+    
+    "mqtt": {
+      "broker": "70a79e332cea4fd2a972c9fccbdedb79.s1.eu.hivemq.cloud",
+      "port": 8883,
+      "mode": "MQTT_TLS_1",
+      "username": "IQYAZILIM",
+      "password": "159753456Empa",
+      "client_id": "GW-001",
+      "keep_alive": 300,
+      "clean_session": true,
+      "qos": 0,
+      "retain": false,
+      "reconnect": 0,
+      "topics": {
+        "subscribe": "devices/GW-001/cmd/config",
+        "publish": "devices/GW-001/tele/data_batch",
+        "status": "devices/GW-001/status"
+      }
+    },
+    
+    "ota": {
+      "enabled": true,
+      "check_interval": 3600,
+      "github": {
+        "owner": "enisyuksel",
+        "repo": "Farm-Tracking-System",
+        "token": "YOUR_GITHUB_TOKEN",
+        "release_api": "https://api.github.com/repos/enisyuksel/Farm-Tracking-System/releases/latest",
+        "download_url": "https://github.com/enisyuksel/Farm-Tracking-System/releases/download/{tag}/{filename}"
+      },
+      "firmware": {
+        "gateway_filename": "SubGHz_Phy_PingPong_Gateway.bin",
+        "node_filename": "SubGHz_Phy_PingPong_Node.bin",
+        "max_size": 131072,
+        "chunk_size": 230
+      }
+    },
+    
+    "sensors": {
+      "collection_period": 60,
+      "max_sensors": 10,
+      "timeout": 5000
+    }
+  },
+  
+  "node": {
+    "enabled": false,
+    "device_id": "NODE_001",
+    "description": "LoRa Sensor Node with OTA",
+    
+    "sensor": {
+      "type": "ENVIRONMENTAL",
+      "sampling_period": 30,
+      "battery_monitor": true,
+      "sleep_mode": true
+    },
+    
+    "ota": {
+      "enabled": true,
+      "flash": {
+        "bank1_start": "0x08000000",
+        "bank2_start": "0x08020000",
+        "page_size": 2048,
+        "bootloader_flag": "0x0803F800"
+      },
+      "retry": {
+        "max_attempts": 3,
+        "timeout": 5000,
+        "backoff": 2
+      }
+    },
+    
+    "power": {
+      "low_power_mode": true,
+      "wake_interval": 60,
+      "battery_threshold": 20
+    }
+  },
+  
+  "logging": {
+    "level": "INFO",
+    "options": ["DEBUG", "INFO", "WARN", "ERROR"],
+    "uart": {
+      "enabled": true,
+      "baudrate": 115200
+    },
+    "timestamp": true
+  },
+  
+  "security": {
+    "encryption": false,
+    "aes_key": "0123456789ABCDEF0123456789ABCDEF",
+    "device_key": "DEVICE_UNIQUE_KEY_HERE"
+  }
+}

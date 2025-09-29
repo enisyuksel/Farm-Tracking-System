@@ -1,0 +1,29 @@
+CMakeFiles/SubGHz_Phy_PingPong_Node.dir/Core/Src/sht4x_i2c.c.obj: \
+ /home/enis/workSpace/IQ-Yazilim/IQYazilim-worked.v00/IQYazilim-cmakebased/SubGHz_Phy_PingPong/Core/Src/sht4x_i2c.c \
+ /home/enis/workSpace/IQ-Yazilim/IQYazilim-worked.v00/IQYazilim-cmakebased/SubGHz_Phy_PingPong/Core/Inc/sht4x_i2c.h \
+ /home/enis/workSpace/IQ-Yazilim/IQYazilim-worked.v00/IQYazilim-cmakebased/SubGHz_Phy_PingPong/Core/Inc/sensirion_config.h \
+ /opt/st/stm32cubeclt_1.19.0/GNU-tools-for-STM32/arm-none-eabi/include/stdlib.h \
+ /opt/st/stm32cubeclt_1.19.0/GNU-tools-for-STM32/arm-none-eabi/include/machine/ieeefp.h \
+ /opt/st/stm32cubeclt_1.19.0/GNU-tools-for-STM32/arm-none-eabi/include/_ansi.h \
+ /opt/st/stm32cubeclt_1.19.0/GNU-tools-for-STM32/arm-none-eabi/include/newlib.h \
+ /opt/st/stm32cubeclt_1.19.0/GNU-tools-for-STM32/arm-none-eabi/include/_newlib_version.h \
+ /opt/st/stm32cubeclt_1.19.0/GNU-tools-for-STM32/arm-none-eabi/include/sys/config.h \
+ /opt/st/stm32cubeclt_1.19.0/GNU-tools-for-STM32/arm-none-eabi/include/sys/features.h \
+ /opt/st/stm32cubeclt_1.19.0/GNU-tools-for-STM32/lib/gcc/arm-none-eabi/13.3.1/include/stddef.h \
+ /opt/st/stm32cubeclt_1.19.0/GNU-tools-for-STM32/arm-none-eabi/include/sys/reent.h \
+ /opt/st/stm32cubeclt_1.19.0/GNU-tools-for-STM32/arm-none-eabi/include/_ansi.h \
+ /opt/st/stm32cubeclt_1.19.0/GNU-tools-for-STM32/arm-none-eabi/include/sys/cdefs.h \
+ /opt/st/stm32cubeclt_1.19.0/GNU-tools-for-STM32/arm-none-eabi/include/machine/_default_types.h \
+ /opt/st/stm32cubeclt_1.19.0/GNU-tools-for-STM32/arm-none-eabi/include/sys/_types.h \
+ /opt/st/stm32cubeclt_1.19.0/GNU-tools-for-STM32/arm-none-eabi/include/machine/_types.h \
+ /opt/st/stm32cubeclt_1.19.0/GNU-tools-for-STM32/arm-none-eabi/include/sys/lock.h \
+ /opt/st/stm32cubeclt_1.19.0/GNU-tools-for-STM32/arm-none-eabi/include/machine/stdlib.h \
+ /opt/st/stm32cubeclt_1.19.0/GNU-tools-for-STM32/arm-none-eabi/include/alloca.h \
+ /opt/st/stm32cubeclt_1.19.0/GNU-tools-for-STM32/lib/gcc/arm-none-eabi/13.3.1/include/stdint.h \
+ /opt/st/stm32cubeclt_1.19.0/GNU-tools-for-STM32/arm-none-eabi/include/stdint.h \
+ /opt/st/stm32cubeclt_1.19.0/GNU-tools-for-STM32/arm-none-eabi/include/sys/_intsup.h \
+ /opt/st/stm32cubeclt_1.19.0/GNU-tools-for-STM32/arm-none-eabi/include/sys/_stdint.h \
+ /opt/st/stm32cubeclt_1.19.0/GNU-tools-for-STM32/lib/gcc/arm-none-eabi/13.3.1/include/stdbool.h \
+ /home/enis/workSpace/IQ-Yazilim/IQYazilim-worked.v00/IQYazilim-cmakebased/SubGHz_Phy_PingPong/Core/Inc/sensirion_common.h \
+ /home/enis/workSpace/IQ-Yazilim/IQYazilim-worked.v00/IQYazilim-cmakebased/SubGHz_Phy_PingPong/Core/Inc/sensirion_i2c.h \
+ /home/enis/workSpace/IQ-Yazilim/IQYazilim-worked.v00/IQYazilim-cmakebased/SubGHz_Phy_PingPong/Core/Inc/sensirion_i2c_hal.h

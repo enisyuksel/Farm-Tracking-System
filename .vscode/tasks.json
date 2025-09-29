@@ -1,0 +1,168 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "🔧 Configure Project",
+            "type": "shell", 
+            "command": "python3",
+            "args": [
+                "config_manager.py",
+                "configure"
+            ],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "📝 Generate Config Headers",
+            "type": "shell",
+            "command": "python3", 
+            "args": [
+                "config_manager.py",
+                "generate"
+            ],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "silent",
+                "focus": false,
+                "panel": "shared"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Build Gateway",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--build",
+                "build/Debug",
+                "--target",
+                "SubGHz_Phy_PingPong_Gateway"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "dependsOn": [
+                "📝 Generate Config Headers",
+                "🏭 Set Gateway Mode"
+            ],
+            "problemMatcher": ["$gcc"],
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            }
+        },
+        {
+            "label": "STM32: Clean",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--build",
+                "build/Debug",
+                "--target",
+                "clean"
+            ],
+            "group": "build"
+        },
+        {
+            "label": "🏭 Set Gateway Mode",
+            "type": "shell",
+            "command": "sed",
+            "args": [
+                "-i",
+                "s/\"mode\": \"NODE\"/\"mode\": \"GATEWAY\"/",
+                "config.json"
+            ],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "silent",
+                "focus": false,
+                "panel": "shared"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "📡 Set Node Mode",
+            "type": "shell",
+            "command": "sed",
+            "args": [
+                "-i",
+                "s/\"mode\": \"GATEWAY\"/\"mode\": \"NODE\"/",
+                "config.json"
+            ],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "silent",
+                "focus": false,
+                "panel": "shared"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Build Node",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--build",
+                "build/Debug",
+                "--target",
+                "SubGHz_Phy_PingPong_Node"
+            ],
+            "group": "build",
+            "dependsOn": [
+                "📝 Generate Config Headers",
+                "📡 Set Node Mode"
+            ],
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ]
+        },
+        {
+            "label": "STM32: Flash Gateway",
+            "type": "shell",
+            "command": "STM32_Programmer_CLI",
+            "args": [
+                "-c",
+                "port=SWD",
+                "-w",
+                "${workspaceFolder}/build/Debug/SubGHz_Phy_PingPong_Gateway.elf",
+                "-v",
+                "-rst"
+            ],
+            "group": "test",
+            "dependsOn": "Build Gateway"
+        },
+        {
+            "label": "STM32: Flash Node", 
+            "type": "shell",
+            "command": "STM32_Programmer_CLI",
+            "args": [
+                "-c",
+                "port=SWD",
+                "-w",
+                "${workspaceFolder}/build/Debug/SubGHz_Phy_PingPong_Node.elf",
+                "-v",
+                "-rst"
+            ],
+            "group": "test",
+            "dependsOn": "Build Node"
+        }
+    ]
+}

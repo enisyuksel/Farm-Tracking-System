@@ -1,0 +1,8 @@
+/home/enis/workSpace/IQ-Yazilim/IQYazilim-worked.v00/IQYazilim-cmakebased/SubGHz_Phy_PingPong/build/CMakeFiles/SubGHz_Phy_PingPong_Node.dir
+/home/enis/workSpace/IQ-Yazilim/IQYazilim-worked.v00/IQYazilim-cmakebased/SubGHz_Phy_PingPong/build/CMakeFiles/edit_cache.dir
+/home/enis/workSpace/IQ-Yazilim/IQYazilim-worked.v00/IQYazilim-cmakebased/SubGHz_Phy_PingPong/build/CMakeFiles/rebuild_cache.dir
+/home/enis/workSpace/IQ-Yazilim/IQYazilim-worked.v00/IQYazilim-cmakebased/SubGHz_Phy_PingPong/build/cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir
+/home/enis/workSpace/IQ-Yazilim/IQYazilim-worked.v00/IQYazilim-cmakebased/SubGHz_Phy_PingPong/build/cmake/stm32cubemx/CMakeFiles/Utilities.dir
+/home/enis/workSpace/IQ-Yazilim/IQYazilim-worked.v00/IQYazilim-cmakebased/SubGHz_Phy_PingPong/build/cmake/stm32cubemx/CMakeFiles/SubGHz_Phy.dir
+/home/enis/workSpace/IQ-Yazilim/IQYazilim-worked.v00/IQYazilim-cmakebased/SubGHz_Phy_PingPong/build/cmake/stm32cubemx/CMakeFiles/edit_cache.dir
+/home/enis/workSpace/IQ-Yazilim/IQYazilim-worked.v00/IQYazilim-cmakebased/SubGHz_Phy_PingPong/build/cmake/stm32cubemx/CMakeFiles/rebuild_cache.dir

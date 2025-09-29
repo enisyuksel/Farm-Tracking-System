@@ -1,0 +1,30 @@
+{
+    "configurations": [
+        {
+            "name": "STM32WL55",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "${workspaceFolder}/Core/Inc",
+                "${workspaceFolder}/Core/Src",
+                "${workspaceFolder}/SubGHz_Phy/App",
+                "${workspaceFolder}/SubGHz_Phy/Target",
+                "${workspaceFolder}/Drivers/STM32WLxx_HAL_Driver/Inc",
+                "${workspaceFolder}/Drivers/STM32WLxx_HAL_Driver/Inc/Legacy",
+                "${workspaceFolder}/Drivers/CMSIS/Device/ST/STM32WLxx/Include",
+                "${workspaceFolder}/Drivers/CMSIS/Include",
+                "${workspaceFolder}/Utilities/**",
+                "${workspaceFolder}/Middlewares/**"
+            ],
+            "defines": [
+                "USE_HAL_DRIVER",
+                "STM32WL55xx",
+                "CORE_CM4"
+            ],
+            "compilerPath": "/usr/bin/arm-none-eabi-gcc",
+            "cStandard": "c11",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "gcc-arm"
+        }
+    ],
+    "version": 4
+}

@@ -1,0 +1,15 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "🔧 Test Debug Config",
+            "type": "cortex-debug",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "executable": "${workspaceFolder}/build/Debug/SubGHz_Phy_PingPong_Gateway.elf",
+            "servertype": "stlink",
+            "device": "STM32WL55CC",
+            "interface": "swd"
+        }
+    ]
+}

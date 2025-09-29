@@ -1,0 +1,36 @@
+{
+    "folders": [
+        {
+            "name": "IQ Yazılım SubGHz Project",
+            "path": "."
+        }
+    ],
+    "settings": {
+        "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
+        "cmake.configureOnOpen": false,
+        "files.associations": {
+            "*.h": "c",
+            "*.c": "c"
+        },
+        "cortex-debug.variableUseNaturalFormat": true,
+        "cortex-debug.showRTOS": true,
+        "cortex-debug.registerUseNaturalFormat": true,
+        "debug.console.fontSize": 12,
+        "debug.console.fontFamily": "monospace",
+        "editor.tabSize": 2,
+        "editor.insertSpaces": true,
+        "C_Cpp.intelliSenseEngine": "Tag Parser",
+        "C_Cpp.autocomplete": "disabled"
+    },
+    "extensions": {
+        "recommendations": [
+            "marus25.cortex-debug",
+            "ms-vscode.cpptools",
+            "ms-vscode.cmake-tools",
+            "dan-c-underwood.arm",
+            "mcu-debug.memory-view",
+            "mcu-debug.rtos-views",
+            "mcu-debug.peripheral-viewer"
+        ]
+    }
+}

@@ -1,0 +1,51 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "🔧 STM32 Gateway Debug",
+            "type": "cortex-debug",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "executable": "${workspaceFolder}/build/Debug/SubGHz_Phy_PingPong_Gateway.elf",
+            "servertype": "stlink",
+            "device": "STM32WL55CC",
+            "interface": "swd",
+            "runToEntryPoint": "main"
+        },
+        {
+            "name": "🚀 STM32 Gateway Build & Debug",
+            "type": "cortex-debug",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "executable": "${workspaceFolder}/build/Debug/SubGHz_Phy_PingPong_Gateway.elf",
+            "servertype": "stlink",
+            "device": "STM32WL55CC",
+            "interface": "swd",
+            "runToEntryPoint": "main",
+            "preLaunchTask": "Build Gateway"
+        },
+        {
+            "name": "📡 STM32 Node Debug",
+            "type": "cortex-debug",
+            "request": "launch", 
+            "cwd": "${workspaceFolder}",
+            "executable": "${workspaceFolder}/build/Debug/SubGHz_Phy_PingPong_Node.elf",
+            "servertype": "stlink",
+            "device": "STM32WL55CC", 
+            "interface": "swd",
+            "runToEntryPoint": "main"
+        },
+        {
+            "name": "🌐 STM32 Node Build & Debug",
+            "type": "cortex-debug",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "executable": "${workspaceFolder}/build/Debug/SubGHz_Phy_PingPong_Node.elf",
+            "servertype": "stlink",
+            "device": "STM32WL55CC",
+            "interface": "swd", 
+            "runToEntryPoint": "main",
+            "preLaunchTask": "Build Node"
+        }
+    ]
+}

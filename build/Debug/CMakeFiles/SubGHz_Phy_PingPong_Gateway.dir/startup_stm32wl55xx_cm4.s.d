@@ -1,0 +1,2 @@
+CMakeFiles/SubGHz_Phy_PingPong_Gateway.dir/startup_stm32wl55xx_cm4.s.obj: \
+ /home/enis/workSpace/IQ-Yazilim/IQYazilim-worked.v00/IQYazilim-cmakebased/SubGHz_Phy_PingPong/startup_stm32wl55xx_cm4.s

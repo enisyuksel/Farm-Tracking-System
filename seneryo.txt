@@ -1,0 +1,171 @@
+![1000130447.jpg](attachment:547663f1-ce5a-4c75-8f0c-26a9a67feb75:1000130447.jpg)
+
+Aşağıdaki tasarım **1 gateway (ESP32-C3, GW-001) + 6 sensör kartı (S-01…S-06, KG200Z LoRa)** için net ve sade kurgudur. LoRa tarafında **yalnız iki payload** vardır: **CONFIG** (periyot) ve **DATA** (tüm sensör verileri). İç protokol/ACK/adresleme detayları LoRa katmanında ele alınır; burada yalnız **payload + CRC-8** tanımlıdır.
+
+---
+
+# Sistem Özeti
+
+- **Gateway (ESP32-C3, GW-001)**: LoRa’dan gelen ölçümleri toplar ve belirli aralıklarda MQTT’ye **tek JSON (batch)** olarak yayınlar. Cloud’dan gelen konfigürasyonları ilgili node’a LoRa ile iletir. **OTA yalnız gateway içindir.**
+- **Sensör kartları (S-01…S-06)**: Başlangıçta **default periyot** ile **tüm sensör verilerini** gönderir. (accel `ax/ay/az` mg, dijital sıcaklık `td` °C, nem `h` %, analog sıcaklık `ta` °C)
+
+---
+
+# MQTT Topic’leri
+
+```
+devices/GW-001/tele/data_batch     // GW → Broker (tek JSON, çok node)
+devices/GW-001/cmd/config          // Cloud → GW (set_period | ota)
+
+```
+
+---
+
+# JSON Mesajları
+
+## A) Toplu sensör verisi (GW → Broker)
+
+- Pencere boyunca gelen node’lar `nodes[]` içine yazılır; gelmeyenler **beklenmez**.
+- Teşhis amaçlı, o pencerede hiç gelmeyen bilinen node’lar `missing[]` ile bildirilebilir.
+
+```json
+{
+  "type": "data_batch",
+  "gw": "GW-001",
+  "nodes": [
+    { "id": "S-01", "td": 24.1, "ta": 23.7, "h": 51.2, "ax": -12, "ay": 3,  "az": 1010 },
+    { "id": "S-02", "td": 25.0, "ta": 24.4, "h": 48.9, "ax": 5,   "ay": -2, "az": 1002 },
+    { "id": "S-03", "td": 22.9, "ta": 22.6, "h": 55.0, "ax": -8,  "ay": 1,  "az": 1016 }
+  ],
+  "missing": ["S-04", "S-05", "S-06"]
+}
+
+```
+
+Alanlar: `td`=dijital °C, `ta`=analog °C, `h`=%RH, `ax/ay/az`=mg.
+
+## B) Config tipleri (Cloud → GW)
+
+**İki tip yeterlidir:**
+
+1. `set_period` (gateway için batch periyodu, sensör için ölçüm periyodu)
+2. `ota` (yalnız gateway)
+
+### 1) `set_period`
+
+Gateway (batch):
+
+```json
+{
+  "type": "set_period",
+  "target": "gw",
+  "gw": "GW-001",
+  "payload": { "period_ms": 1000 }
+}
+
+```
+
+Sensör (ölçüm):
+
+```json
+{
+  "type": "set_period",
+  "target": "snode",
+  "gw": "GW-001",
+  "id": "S-03",
+  "payload": { "period_ms": 1000 }
+}
+
+```
+
+### 2) `ota` (yalnız gateway)
+
+```json
+{
+  "type": "ota",
+  "target": "gw",
+  "gw": "GW-001",
+  "payload": {
+    "url": "https://files.example.com/fw/gw_1.0.3.bin",
+    "ver": "1.0.3"
+  }
+}
+
+```
+
+---
+
+# LoRa P2P Payload Biçimleri (yalın **payload + CRC-8**)
+
+**CRC-8:** CRC-8/MAXIM (polinom `0x31`, init `0x00`, RefIn/RefOut **true**, xorout `0x00`).
+
+Çok baytlı sayılar **little-endian**’dır. Adresleme/link katmanı LoRa modülünde ele alınır.
+
+## 1) DATA (sensör → gateway)
+
+**Tüm sensör alanları her pakette bulunur.**
+
+```
+[TYPE=0xD1]
+[TD(2B)] [TA(2B)] [H(1B)] [AX(2B)] [AY(2B)] [AZ(2B)]
+[CRC8(1B)]
+
+```
+
+- `TD/TA`: int16, **0.01°C** çözünürlük (örn. 25.12°C → 2512 → `0x09D0` → **D0 09**)
+- `H`: uint8, %RH
+- `AX/AY/AZ`: int16, mg (örn. +5mg → `0x0005` → **05 00**)
+
+**Örnek DATA payload (hex)**
+
+Değerler: `TD=25.12°C`, `TA=24.30°C`, `H=52%`, `AX=+5mg`, `AY=−2mg`, `AZ=1002mg`
+
+```
+D1  D0 09  7E 09  34  05 00  FE FF  EA 03  F9
+
+```
+
+Son bayt **F9**, yukarıdaki baytların CRC-8/MAXIM hesabıdır.
+
+## 2) CONFIG (gateway → sensör) — **periyot değiştir**
+
+```
+[TYPE=0xA1]
+[PERIOD_MS(2B)]
+[CRC8(1B)]
+
+```
+
+**Örnek CONFIG payload (hex)**  (`period_ms = 1000` → `0x03E8` → **E8 03**)
+
+```
+A1  E8 03  BC
+
+```
+
+Son bayt **BC**, yukarıdaki baytların CRC-8/MAXIM hesabıdır.
+
+---
+
+# Çalışma Kurgusu
+
+1. Sensör kartları açılışta **default periyot** ile **tüm verileri** (DATA payload) LoRa P2P üzerinden gönderir.
+2. Gateway, belirlenen **batch süresi** sonunda o pencerede alınan son ölçümleri **tek JSON** içinde MQTT’ye yayınlar; pencerede hiç gelmeyen bilinen node’lar `missing[]` ile işaretlenebilir.
+3. Cloud’tan `set_period` mesajı geldiğinde:
+    - `target=gw` → gateway’in **batch** periyodu güncellenir,
+    - `target=snode` → ilgili sensörün **ölçüm** periyodu güncellenir (CONFIG payload gönderilir).
+4. `ota` yalnız gateway içindir; sensör OTA’sı yoktur.
+
+Güncel lora frame yapısı:
+
+| Byte(s) | Field   | Açıklama       | Boyut (byte)   | Tip     | Not     |
++---------+---------+----------------+----------------+---------+---------+---------+---------+
+| 0       | type    | Node tipi      | 1              | uint8_t | Cihaz rolü/sensör tipi vb. |
+| 1       | node_id | Node ID        | 1              | uint8_t | Her node’a özel kimlik     |
+| 2 - 3   | td      | TD (ör: sıcaklık/dijital) | 2 | uint16_t | LSB önce                  |
+| 4 - 5   | ta      | TA (ör: analog değer)     | 2 | uint16_t | LSB önce                  |
+| 6       | h       | H (ör: nem)   | 1              | uint8_t | Tek byte                   |
+| 7 - 8   | ax      | Accelerometer X | 2            | int16_t | LSB önce                  |
+| 9 - 10  | ay      | Accelerometer Y | 2            | int16_t | LSB önce                  |
+| 11 - 12 | az      | Accelerometer Z | 2            | int16_t | LSB önce                  |
+| 13      | crc     | CRC8-Maxim     | 1              | uint8_t | İlk 13 byte üzerinden     |
