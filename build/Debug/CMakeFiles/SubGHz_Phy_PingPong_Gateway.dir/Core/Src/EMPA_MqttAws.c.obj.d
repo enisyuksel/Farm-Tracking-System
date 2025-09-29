@@ -74,4 +74,5 @@ CMakeFiles/SubGHz_Phy_PingPong_Gateway.dir/Core/Src/EMPA_MqttAws.c.obj: \
  /opt/st/stm32cubeclt_1.19.0/GNU-tools-for-STM32/arm-none-eabi/include/machine/stdlib.h \
  /opt/st/stm32cubeclt_1.19.0/GNU-tools-for-STM32/arm-none-eabi/include/alloca.h \
  /home/enis/workSpace/IQ-Yazilim/IQYazilim-worked.v00/IQYazilim-cmakebased/SubGHz_Phy_PingPong/Utilities/sequencer/stm32_seq.h \
- /home/enis/workSpace/IQ-Yazilim/IQYazilim-worked.v00/IQYazilim-cmakebased/SubGHz_Phy_PingPong/Core/Inc/utilities_def.h
+ /home/enis/workSpace/IQ-Yazilim/IQYazilim-worked.v00/IQYazilim-cmakebased/SubGHz_Phy_PingPong/Core/Inc/utilities_def.h \
+ /home/enis/workSpace/IQ-Yazilim/IQYazilim-worked.v00/IQYazilim-cmakebased/SubGHz_Phy_PingPong/Core/Inc/project_config.h

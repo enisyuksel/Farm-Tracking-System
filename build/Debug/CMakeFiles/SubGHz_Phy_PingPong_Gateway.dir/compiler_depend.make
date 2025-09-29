@@ -3,6 +3,7 @@
 
 CMakeFiles/SubGHz_Phy_PingPong_Gateway.dir/Core/Src/EMPA_MqttAws.c.obj: /home/enis/workSpace/IQ-Yazilim/IQYazilim-worked.v00/IQYazilim-cmakebased/SubGHz_Phy_PingPong/Core/Src/EMPA_MqttAws.c \
   /home/enis/workSpace/IQ-Yazilim/IQYazilim-worked.v00/IQYazilim-cmakebased/SubGHz_Phy_PingPong/Core/Inc/main.h \
+  /home/enis/workSpace/IQ-Yazilim/IQYazilim-worked.v00/IQYazilim-cmakebased/SubGHz_Phy_PingPong/Core/Inc/project_config.h \
   /home/enis/workSpace/IQ-Yazilim/IQYazilim-worked.v00/IQYazilim-cmakebased/SubGHz_Phy_PingPong/Core/Inc/stm32wlxx_hal_conf.h \
   /home/enis/workSpace/IQ-Yazilim/IQYazilim-worked.v00/IQYazilim-cmakebased/SubGHz_Phy_PingPong/Core/Inc/utilities_def.h \
   /home/enis/workSpace/IQ-Yazilim/IQYazilim-worked.v00/IQYazilim-cmakebased/SubGHz_Phy_PingPong/Core/Src/EMPA_MqttAws.h \
@@ -1972,17 +1973,11 @@ CMakeFiles/SubGHz_Phy_PingPong_Gateway.dir/SubGHz_Phy/Target/radio_board_if.c.ob
 
 /home/enis/workSpace/IQ-Yazilim/IQYazilim-worked.v00/IQYazilim-cmakebased/SubGHz_Phy_PingPong/SubGHz_Phy/App/lora_ota_node.c:
 
-/home/enis/workSpace/IQ-Yazilim/IQYazilim-worked.v00/IQYazilim-cmakebased/SubGHz_Phy_PingPong/Core/Inc/dma.h:
-
 /home/enis/workSpace/IQ-Yazilim/IQYazilim-worked.v00/IQYazilim-cmakebased/SubGHz_Phy_PingPong/Core/Src/common.c:
 
 /opt/st/stm32cubeclt_1.19.0/GNU-tools-for-STM32/lib/gcc/arm-none-eabi/13.3.1/include/stdint.h:
 
 /opt/st/stm32cubeclt_1.19.0/GNU-tools-for-STM32/arm-none-eabi/include/strings.h:
-
-/home/enis/workSpace/IQ-Yazilim/IQYazilim-worked.v00/IQYazilim-cmakebased/SubGHz_Phy_PingPong/Core/Inc/stm32wlxx_nucleo_conf.h:
-
-/home/enis/workSpace/IQ-Yazilim/IQYazilim-worked.v00/IQYazilim-cmakebased/SubGHz_Phy_PingPong/Core/Src/i2c.c:
 
 /opt/st/stm32cubeclt_1.19.0/GNU-tools-for-STM32/arm-none-eabi/include/sys/features.h:
 
@@ -2022,10 +2017,6 @@ CMakeFiles/SubGHz_Phy_PingPong_Gateway.dir/SubGHz_Phy/Target/radio_board_if.c.ob
 
 /home/enis/workSpace/IQ-Yazilim/IQYazilim-worked.v00/IQYazilim-cmakebased/SubGHz_Phy_PingPong/Drivers/STM32WLxx_HAL_Driver/Inc/stm32wlxx_hal_tim_ex.h:
 
-/home/enis/workSpace/IQ-Yazilim/IQYazilim-worked.v00/IQYazilim-cmakebased/SubGHz_Phy_PingPong/Core/Inc/utilities_def.h:
-
-/opt/st/stm32cubeclt_1.19.0/GNU-tools-for-STM32/arm-none-eabi/include/machine/stdlib.h:
-
 /home/enis/workSpace/IQ-Yazilim/IQYazilim-worked.v00/IQYazilim-cmakebased/SubGHz_Phy_PingPong/Drivers/STM32WLxx_HAL_Driver/Inc/stm32wlxx_hal_rtc_ex.h:
 
 /home/enis/workSpace/IQ-Yazilim/IQYazilim-worked.v00/IQYazilim-cmakebased/SubGHz_Phy_PingPong/Drivers/STM32WLxx_HAL_Driver/Inc/stm32wlxx_hal_rcc_ex.h:
@@ -2044,6 +2035,8 @@ CMakeFiles/SubGHz_Phy_PingPong_Gateway.dir/SubGHz_Phy/Target/radio_board_if.c.ob
 
 /home/enis/workSpace/IQ-Yazilim/IQYazilim-worked.v00/IQYazilim-cmakebased/SubGHz_Phy_PingPong/Drivers/CMSIS/Include/cmsis_version.h:
 
+/home/enis/workSpace/IQ-Yazilim/IQYazilim-worked.v00/IQYazilim-cmakebased/SubGHz_Phy_PingPong/Core/Inc/project_config.h:
+
 /home/enis/workSpace/IQ-Yazilim/IQYazilim-worked.v00/IQYazilim-cmakebased/SubGHz_Phy_PingPong/Drivers/CMSIS/Include/cmsis_gcc.h:
 
 /home/enis/workSpace/IQ-Yazilim/IQYazilim-worked.v00/IQYazilim-cmakebased/SubGHz_Phy_PingPong/SubGHz_Phy/App/github_ota_downloader.c:
@@ -2060,6 +2053,18 @@ CMakeFiles/SubGHz_Phy_PingPong_Gateway.dir/SubGHz_Phy/Target/radio_board_if.c.ob
 
 /home/enis/workSpace/IQ-Yazilim/IQYazilim-worked.v00/IQYazilim-cmakebased/SubGHz_Phy_PingPong/Drivers/STM32WLxx_HAL_Driver/Inc/stm32wlxx_hal_gpio_ex.h:
 
+/home/enis/workSpace/IQ-Yazilim/IQYazilim-worked.v00/IQYazilim-cmakebased/SubGHz_Phy_PingPong/Drivers/CMSIS/Device/ST/STM32WLxx/Include/stm32wlxx.h:
+
+/opt/st/stm32cubeclt_1.19.0/GNU-tools-for-STM32/arm-none-eabi/include/sys/reent.h:
+
+/home/enis/workSpace/IQ-Yazilim/IQYazilim-worked.v00/IQYazilim-cmakebased/SubGHz_Phy_PingPong/Drivers/BSP/STM32WLxx_Nucleo/stm32wlxx_nucleo_radio.h:
+
+/home/enis/workSpace/IQ-Yazilim/IQYazilim-worked.v00/IQYazilim-cmakebased/SubGHz_Phy_PingPong/Core/Src/common.h:
+
+/home/enis/workSpace/IQ-Yazilim/IQYazilim-worked.v00/IQYazilim-cmakebased/SubGHz_Phy_PingPong/SubGHz_Phy/App/lora_ota_gateway.h:
+
+/opt/st/stm32cubeclt_1.19.0/GNU-tools-for-STM32/arm-none-eabi/include/time.h:
+
 /opt/st/stm32cubeclt_1.19.0/GNU-tools-for-STM32/arm-none-eabi/include/sys/string.h:
 
 /opt/st/stm32cubeclt_1.19.0/GNU-tools-for-STM32/arm-none-eabi/include/machine/_default_types.h:
@@ -2068,19 +2073,15 @@ CMakeFiles/SubGHz_Phy_PingPong_Gateway.dir/SubGHz_Phy/Target/radio_board_if.c.ob
 
 /opt/st/stm32cubeclt_1.19.0/GNU-tools-for-STM32/arm-none-eabi/include/newlib.h:
 
+/home/enis/workSpace/IQ-Yazilim/IQYazilim-worked.v00/IQYazilim-cmakebased/SubGHz_Phy_PingPong/Middlewares/Third_Party/SubGHz_Phy/radio.h:
+
+/home/enis/workSpace/IQ-Yazilim/IQYazilim-worked.v00/IQYazilim-cmakebased/SubGHz_Phy_PingPong/Core/Src/EMPA_MqttAws.c:
+
 /home/enis/workSpace/IQ-Yazilim/IQYazilim-worked.v00/IQYazilim-cmakebased/SubGHz_Phy_PingPong/Drivers/STM32WLxx_HAL_Driver/Inc/stm32wlxx_hal_rtc.h:
 
-/home/enis/workSpace/IQ-Yazilim/IQYazilim-worked.v00/IQYazilim-cmakebased/SubGHz_Phy_PingPong/Core/Src/common.h:
+/home/enis/workSpace/IQ-Yazilim/IQYazilim-worked.v00/IQYazilim-cmakebased/SubGHz_Phy_PingPong/Core/Inc/utilities_def.h:
 
-/home/enis/workSpace/IQ-Yazilim/IQYazilim-worked.v00/IQYazilim-cmakebased/SubGHz_Phy_PingPong/SubGHz_Phy/App/lora_ota_gateway.h:
-
-/opt/st/stm32cubeclt_1.19.0/GNU-tools-for-STM32/arm-none-eabi/include/time.h:
-
-/home/enis/workSpace/IQ-Yazilim/IQYazilim-worked.v00/IQYazilim-cmakebased/SubGHz_Phy_PingPong/Drivers/CMSIS/Device/ST/STM32WLxx/Include/stm32wlxx.h:
-
-/opt/st/stm32cubeclt_1.19.0/GNU-tools-for-STM32/arm-none-eabi/include/sys/reent.h:
-
-/home/enis/workSpace/IQ-Yazilim/IQYazilim-worked.v00/IQYazilim-cmakebased/SubGHz_Phy_PingPong/Drivers/BSP/STM32WLxx_Nucleo/stm32wlxx_nucleo_radio.h:
+/opt/st/stm32cubeclt_1.19.0/GNU-tools-for-STM32/arm-none-eabi/include/machine/stdlib.h:
 
 /opt/st/stm32cubeclt_1.19.0/GNU-tools-for-STM32/arm-none-eabi/include/machine/ieeefp.h:
 
@@ -2163,6 +2164,12 @@ CMakeFiles/SubGHz_Phy_PingPong_Gateway.dir/SubGHz_Phy/Target/radio_board_if.c.ob
 /home/enis/workSpace/IQ-Yazilim/IQYazilim-worked.v00/IQYazilim-cmakebased/SubGHz_Phy_PingPong/Utilities/misc/stm32_mem.h:
 
 /home/enis/workSpace/IQ-Yazilim/IQYazilim-worked.v00/IQYazilim-cmakebased/SubGHz_Phy_PingPong/Core/Src/sys_app.c:
+
+/home/enis/workSpace/IQ-Yazilim/IQYazilim-worked.v00/IQYazilim-cmakebased/SubGHz_Phy_PingPong/Core/Inc/dma.h:
+
+/home/enis/workSpace/IQ-Yazilim/IQYazilim-worked.v00/IQYazilim-cmakebased/SubGHz_Phy_PingPong/Core/Src/i2c.c:
+
+/home/enis/workSpace/IQ-Yazilim/IQYazilim-worked.v00/IQYazilim-cmakebased/SubGHz_Phy_PingPong/Core/Inc/stm32wlxx_nucleo_conf.h:
 
 /opt/st/stm32cubeclt_1.19.0/GNU-tools-for-STM32/lib/gcc/arm-none-eabi/13.3.1/include/stddef.h:
 
@@ -2253,10 +2260,6 @@ CMakeFiles/SubGHz_Phy_PingPong_Gateway.dir/SubGHz_Phy/Target/radio_board_if.c.ob
 /home/enis/workSpace/IQ-Yazilim/IQYazilim-worked.v00/IQYazilim-cmakebased/SubGHz_Phy_PingPong/Core/Src/sensirion_common.c:
 
 /home/enis/workSpace/IQ-Yazilim/IQYazilim-worked.v00/IQYazilim-cmakebased/SubGHz_Phy_PingPong/Drivers/STM32WLxx_HAL_Driver/Inc/stm32wlxx_ll_gpio.h:
-
-/home/enis/workSpace/IQ-Yazilim/IQYazilim-worked.v00/IQYazilim-cmakebased/SubGHz_Phy_PingPong/Core/Src/EMPA_MqttAws.c:
-
-/home/enis/workSpace/IQ-Yazilim/IQYazilim-worked.v00/IQYazilim-cmakebased/SubGHz_Phy_PingPong/Middlewares/Third_Party/SubGHz_Phy/radio.h:
 
 /home/enis/workSpace/IQ-Yazilim/IQYazilim-worked.v00/IQYazilim-cmakebased/SubGHz_Phy_PingPong/Utilities/lpm/tiny_lpm/stm32_lpm.h:
 
