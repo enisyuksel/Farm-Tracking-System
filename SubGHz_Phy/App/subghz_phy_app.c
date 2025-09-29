@@ -108,7 +108,7 @@ static int32_t random_delay;
 
 // Batch data variables
 #define MAX_SNODES 6
-#define BATCH_PERIOD_MS 10000 // 90 seconds
+#define BATCH_PERIOD_MS 60000 // 60 seconds
 
 typedef struct {
     uint8_t node_id;

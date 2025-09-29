@@ -2,6 +2,7 @@
 #include "myESP32AT.h"
 #include "stm32_seq.h"
 #include "utilities_def.h"
+#include "project_config.h"  // Config ayarları için eklendi
 #define FW_VERSION_MAJOR (uint8_t)0
 #define FW_VERSION_MINOR (uint8_t)1
 #define FW_VERSION_PATCH (uint8_t)0
@@ -24,28 +25,28 @@ MQTT_FwVersionDataTypeDef fwVersion = {FW_VERSION_MAJOR, FW_VERSION_MINOR, FW_VE
 char topicBuffer[256];
 extern int32_t temperature;
 extern int32_t humidity;
-extern char DEVICE_ID[];
+// Device ID string variable tanımı kaldırıldı - config.h'dan #define olarak gelecek
 long int counter_mqtt = 0;
 
 MQTT_Config mqttConfig = {
 	.mqttPacketBuffer = mqttPacketBuffer,
 	.mode_wifi = STATION_MODE,
 	.OSC_enable = SC_DISABLE,
-	.wifiID = "EMPA_Arge",
-	.wifiPassword = "Emp@Arg2024!",
-	.timezone = 3,
+	.wifiID = WIFI_SSID,                    // config.json'dan: "EMPA_Arge"
+	.wifiPassword = WIFI_PASSWORD,          // config.json'dan: "Emp@Arg2024!"
+	.timezone = WIFI_TIMEZONE,              // config.json'dan: 3
 	.mode_mqtt = MQTT_TLS_1,
-	.clientID = "GW-001",
-	.username = "atakan1234",
-	.mqttPassword = "Atakan1234",
-	.keepAlive = 300,
+	.clientID = MQTT_CLIENT_ID,             // config.json'dan: "GW-001"
+	.username = MQTT_USERNAME,              // config.json'dan: "IQYAZILIM"
+	.mqttPassword = MQTT_PASSWORD,          // config.json'dan: "159753456Empa"
+	.keepAlive = MQTT_KEEP_ALIVE,           // config.json'dan: 300
 	.cleanSession = CLS_1,
 	.qos = QOS_0,
 	.retain = RTN_0,
-	.brokerAddress = "3ac07e9d256141b9a168207c1a3e9dc4.s1.eu.hivemq.cloud",
+	.brokerAddress = MQTT_BROKER,           // config.json'dan: "70a79e332cea4fd2a972c9fccbdedb79.s1.eu.hivemq.cloud"
 	.reconnect = 0,
-	.subtopic = "devices/GW-001/cmd/config",      // Config commands from cloud
-	.pubtopic = "devices/GW-001/tele/data_batch"  // Batch data to cloud
+	.subtopic = MQTT_TOPIC_SUBSCRIBE,       // config.json'dan: "devices/GW-001/cmd/config"
+	.pubtopic = MQTT_TOPIC_PUBLISH          // config.json'dan: "devices/GW-001/tele/data_batch"
 };
 
 // Config message handler function

@@ -55,7 +55,11 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-
+// Global variables for Live Watch debugging
+volatile uint8_t g_lora_started = 0;          // LoRa başlatma durumu
+volatile uint32_t g_mqtt_periodic_trigger = 0; // MQTT periyodik sayaç
+volatile uint32_t g_main_loop_counter = 0;     // Ana döngü sayacı
+volatile uint8_t g_mqtt_connected = 0;         // MQTT bağlantı durumu
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -112,27 +116,30 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  static uint8_t lora_started = 0;  // Flag to start LoRa only once
-  static uint32_t mqtt_periodic_trigger = 0;  // Periodic MQTT task trigger
-  
 	while (1) {
+		// Ana döngü sayacını artır (Live Watch için)
+		g_main_loop_counter++;
+		
+		// MQTT bağlantı durumunu güncelle
+		g_mqtt_connected = (flag_mqtt_connected == SET) ? 1 : 0;
+		
 		// Check if MQTT is connected and LoRa is not started yet
-		if (flag_mqtt_connected == SET && lora_started == 0) {
+		if (flag_mqtt_connected == SET && g_lora_started == 0) {
 			printf("*** MQTT Connected - Starting LoRa Gateway ***\n\r");
 			StartLoRaGateway();
-			lora_started = 1;
+			g_lora_started = 1;
 			printf("*** LoRa Gateway Started Successfully ***\n\r");
 		}
 		
 		// Only process LoRa if it's started
-		if (lora_started) {
+		if (g_lora_started) {
 			MX_SubGHz_Phy_Process();
 		}
 		
 		// Periodic MQTT task trigger (every ~1000 main loop cycles)
-		mqtt_periodic_trigger++;
-		if (mqtt_periodic_trigger > 1000) {
-			mqtt_periodic_trigger = 0;
+		g_mqtt_periodic_trigger++;
+		if (g_mqtt_periodic_trigger > 1000) {
+			g_mqtt_periodic_trigger = 0;
 			UTIL_SEQ_SetTask((1 << CFG_SEQ_Task_MQTT_Process), CFG_SEQ_Prio_0);
 		}
 		

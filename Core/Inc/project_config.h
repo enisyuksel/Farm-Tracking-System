@@ -4,7 +4,7 @@
  * @author  IQ Yazılım
  * @brief   Project Configuration from config.json
  * @note    This file is auto-generated from config.json
- * @date    Generated: 2025-09-29 15:53:25
+ * @date    Generated: 2025-09-29 16:49:29
  ******************************************************************************
  */
 
@@ -37,11 +37,11 @@ extern "C" {
 #define WIFI_TIMEZONE           3
 
 // MQTT Settings  
-#define MQTT_BROKER             "3ac07e9d256141b9a168207c1a3e9dc4.s1.eu.hivemq.cloud"
+#define MQTT_BROKER             "70a79e332cea4fd2a972c9fccbdedb79.s1.eu.hivemq.cloud"
 #define MQTT_PORT               8883
 #define MQTT_MODE               "MQTT_TLS_1"
-#define MQTT_USERNAME           "atakan1234"
-#define MQTT_PASSWORD           "Atakan1234"
+#define MQTT_USERNAME           "IQYAZILIM"
+#define MQTT_PASSWORD           "159753456Empa"
 #define MQTT_CLIENT_ID          "GW-001"
 #define MQTT_KEEP_ALIVE         300
 
