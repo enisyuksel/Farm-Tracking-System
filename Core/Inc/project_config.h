@@ -4,7 +4,7 @@
  * @author  IQ Yazılım
  * @brief   Project Configuration from config.json
  * @note    This file is auto-generated from config.json
- * @date    Generated: 2025-09-30 10:13:34
+ * @date    Generated: 2025-09-30 10:23:11
  ******************************************************************************
  */
 
