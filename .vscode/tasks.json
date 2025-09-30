@@ -4,8 +4,11 @@
         {
             "label": "🔧 Configure Project",
             "type": "shell", 
-            "command": "python3",
-            "args": [
+            "command": "python3",            "dependsOn": [
+                "📡 Switch to Node Mode",
+                "🧹 Clean CMake Cache", 
+                "⚙️ Configure CMake"
+            ],        "args": [
                 "config_manager.py",
                 "configure"
             ],
@@ -36,6 +39,77 @@
             "problemMatcher": []
         },
         {
+            "label": "🧹 Clean CMake Cache",
+            "type": "shell",
+            "command": "rm",
+            "args": [
+                "-rf",
+                "build/Debug"
+            ],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "silent",
+                "focus": false,
+                "panel": "shared"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "⚙️ Configure CMake",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "-B",
+                "build/Debug",
+                "-S",
+                ".",
+                "-DCMAKE_BUILD_TYPE=Debug"
+            ],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "silent",
+                "focus": false,
+                "panel": "shared"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "🏭 Switch to Gateway Mode",
+            "type": "shell",
+            "command": "bash",
+            "args": [
+                "-c",
+                "sed -i 's/\"mode\": \"NODE\"/\"mode\": \"GATEWAY\"/' config.json && python3 config_manager.py"
+            ],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "silent",
+                "focus": false,
+                "panel": "shared"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "📡 Switch to Node Mode", 
+            "type": "shell",
+            "command": "bash",
+            "args": [
+                "-c",
+                "sed -i 's/\"mode\": \"GATEWAY\"/\"mode\": \"NODE\"/' config.json && python3 config_manager.py"
+            ],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "silent",
+                "focus": false,
+                "panel": "shared"
+            },
+            "problemMatcher": []
+        },
+        {
             "label": "Build Gateway",
             "type": "shell",
             "command": "cmake",
@@ -50,9 +124,11 @@
                 "isDefault": true
             },
             "dependsOn": [
-                "📝 Generate Config Headers",
-                "🏭 Set Gateway Mode"
+                "🏭 Switch to Gateway Mode",
+                "🧹 Clean CMake Cache",
+                "⚙️ Configure CMake"
             ],
+            "dependsOrder": "sequence",
             "problemMatcher": ["$gcc"],
             "presentation": {
                 "echo": true,
@@ -74,42 +150,6 @@
             "group": "build"
         },
         {
-            "label": "🏭 Set Gateway Mode",
-            "type": "shell",
-            "command": "sed",
-            "args": [
-                "-i",
-                "s/\"mode\": \"NODE\"/\"mode\": \"GATEWAY\"/",
-                "config.json"
-            ],
-            "group": "build",
-            "presentation": {
-                "echo": true,
-                "reveal": "silent",
-                "focus": false,
-                "panel": "shared"
-            },
-            "problemMatcher": []
-        },
-        {
-            "label": "📡 Set Node Mode",
-            "type": "shell",
-            "command": "sed",
-            "args": [
-                "-i",
-                "s/\"mode\": \"GATEWAY\"/\"mode\": \"NODE\"/",
-                "config.json"
-            ],
-            "group": "build",
-            "presentation": {
-                "echo": true,
-                "reveal": "silent",
-                "focus": false,
-                "panel": "shared"
-            },
-            "problemMatcher": []
-        },
-        {
             "label": "Build Node",
             "type": "shell",
             "command": "cmake",
@@ -121,9 +161,11 @@
             ],
             "group": "build",
             "dependsOn": [
-                "📝 Generate Config Headers",
-                "📡 Set Node Mode"
+                "� Switch to Node Mode",
+                "🧹 Clean CMake Cache", 
+                "⚙️ Configure CMake"
             ],
+            "dependsOrder": "sequence",
             "presentation": {
                 "echo": true,
                 "reveal": "always",
@@ -133,6 +175,100 @@
             "problemMatcher": [
                 "$gcc"
             ]
+        },
+        {
+            "label": "⚡ Quick Build Gateway",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--build",
+                "build/Debug",
+                "--target",
+                "SubGHz_Phy_PingPong_Gateway"
+            ],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            },
+            "problemMatcher": ["$gcc"]
+        },
+        {
+            "label": "⚡ Quick Build Node", 
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--build",
+                "build/Debug",
+                "--target",
+                "SubGHz_Phy_PingPong_Node"
+            ],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            },
+            "problemMatcher": ["$gcc"]
+        },
+        {
+            "label": "🔄 Full Clean & Build Gateway",
+            "type": "shell",
+            "command": "echo",
+            "args": ["Running Full Gateway Build..."],
+            "group": "build",
+            "dependsOn": [
+                "🏭 Switch to Gateway Mode",
+                "🧹 Clean CMake Cache",
+                "⚙️ Configure CMake",
+                "⚡ Quick Build Gateway"
+            ],
+            "dependsOrder": "sequence",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            }
+        },
+        {
+            "label": "🔄 Full Clean & Build Node",
+            "type": "shell", 
+            "command": "echo",
+            "args": ["Running Full Node Build..."],
+            "group": "build",
+            "dependsOn": [
+                "📡 Switch to Node Mode",
+                "🧹 Clean CMake Cache",
+                "⚙️ Configure CMake", 
+                "⚡ Quick Build Node"
+            ],
+            "dependsOrder": "sequence",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            }
+        },
+        {
+            "label": "📊 Show Current Build Mode",
+            "type": "shell",
+            "command": "bash",
+            "args": [
+                "-c",
+                "echo '=== Current Configuration ===' && grep '\"mode\"' config.json && echo '=== Build Artifacts ===' && ls -la build/Debug/*.elf 2>/dev/null || echo 'No build artifacts found'"
+            ],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared"
+            }
         },
         {
             "label": "STM32: Flash Gateway",
