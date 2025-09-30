@@ -916,12 +916,24 @@ CMakeFiles/SubGHz_Phy_PingPong_Gateway.dir/Core/Src/stm32wlxx_it.c.obj: /home/en
   /home/enis/workSpace/IQ-Yazilim/IQYazilim-worked.v00/IQYazilim-cmakebased/SubGHz_Phy_PingPong/Drivers/STM32WLxx_HAL_Driver/Inc/stm32wlxx_ll_rcc.h \
   /home/enis/workSpace/IQ-Yazilim/IQYazilim-worked.v00/IQYazilim-cmakebased/SubGHz_Phy_PingPong/Drivers/STM32WLxx_HAL_Driver/Inc/stm32wlxx_ll_spi.h \
   /home/enis/workSpace/IQ-Yazilim/IQYazilim-worked.v00/IQYazilim-cmakebased/SubGHz_Phy_PingPong/Drivers/STM32WLxx_HAL_Driver/Inc/stm32wlxx_ll_system.h \
+  /opt/st/stm32cubeclt_1.19.0/GNU-tools-for-STM32/arm-none-eabi/include/_ansi.h \
   /opt/st/stm32cubeclt_1.19.0/GNU-tools-for-STM32/arm-none-eabi/include/_newlib_version.h \
   /opt/st/stm32cubeclt_1.19.0/GNU-tools-for-STM32/arm-none-eabi/include/machine/_default_types.h \
+  /opt/st/stm32cubeclt_1.19.0/GNU-tools-for-STM32/arm-none-eabi/include/machine/_types.h \
+  /opt/st/stm32cubeclt_1.19.0/GNU-tools-for-STM32/arm-none-eabi/include/machine/ieeefp.h \
+  /opt/st/stm32cubeclt_1.19.0/GNU-tools-for-STM32/arm-none-eabi/include/newlib.h \
   /opt/st/stm32cubeclt_1.19.0/GNU-tools-for-STM32/arm-none-eabi/include/stdint.h \
+  /opt/st/stm32cubeclt_1.19.0/GNU-tools-for-STM32/arm-none-eabi/include/stdio.h \
   /opt/st/stm32cubeclt_1.19.0/GNU-tools-for-STM32/arm-none-eabi/include/sys/_intsup.h \
   /opt/st/stm32cubeclt_1.19.0/GNU-tools-for-STM32/arm-none-eabi/include/sys/_stdint.h \
+  /opt/st/stm32cubeclt_1.19.0/GNU-tools-for-STM32/arm-none-eabi/include/sys/_types.h \
+  /opt/st/stm32cubeclt_1.19.0/GNU-tools-for-STM32/arm-none-eabi/include/sys/cdefs.h \
+  /opt/st/stm32cubeclt_1.19.0/GNU-tools-for-STM32/arm-none-eabi/include/sys/config.h \
   /opt/st/stm32cubeclt_1.19.0/GNU-tools-for-STM32/arm-none-eabi/include/sys/features.h \
+  /opt/st/stm32cubeclt_1.19.0/GNU-tools-for-STM32/arm-none-eabi/include/sys/lock.h \
+  /opt/st/stm32cubeclt_1.19.0/GNU-tools-for-STM32/arm-none-eabi/include/sys/reent.h \
+  /opt/st/stm32cubeclt_1.19.0/GNU-tools-for-STM32/arm-none-eabi/include/sys/stdio.h \
+  /opt/st/stm32cubeclt_1.19.0/GNU-tools-for-STM32/lib/gcc/arm-none-eabi/13.3.1/include/stdarg.h \
   /opt/st/stm32cubeclt_1.19.0/GNU-tools-for-STM32/lib/gcc/arm-none-eabi/13.3.1/include/stddef.h \
   /opt/st/stm32cubeclt_1.19.0/GNU-tools-for-STM32/lib/gcc/arm-none-eabi/13.3.1/include/stdint.h
 

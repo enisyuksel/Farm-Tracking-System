@@ -59,8 +59,8 @@ typedef enum {
 /* USER CODE BEGIN PD */
 /* Configurations */
 /*Timeout*/
-#define RX_TIMEOUT_VALUE              3000
-#define TX_TIMEOUT_VALUE              3000
+#define RX_TIMEOUT_VALUE              60000
+#define TX_TIMEOUT_VALUE              60000
 
 #define MAX_APP_BUFFER_SIZE          255
 /* wait for remote to be in Rx, before sending a Tx frame*/
@@ -69,9 +69,6 @@ typedef enum {
 #define FSK_AFC_BANDWIDTH             83333
 /* LED blink Period*/
 #define LED_PERIOD_MS                 200
-
-//#define TRANSMITTER
-#define RECEIVER
 
 /* USER CODE END PD */
 
@@ -99,54 +96,66 @@ int8_t RssiValue = 0;
 int8_t SnrValue = 0;
 /* Led Timers objects*/
 static UTIL_TIMER_Object_t timerLed;
-/* device state. Master: true, Slave: false*/
-bool isMaster = true;
-/* random delay to make sure 2 devices will sync*/
-/* the closest the random delays are, the longer it will
- take for the devices to sync when started simultaneously*/
-static int32_t random_delay;
+/* Gateway operates in pure RX mode - no master/slave concept */
+/* random delay removed - not needed for gateway */
 
-// Batch data variables
+// Batch data variables - Modified to collect ALL packets
 #define MAX_SNODES 6
-#define BATCH_PERIOD_MS 60000 // 60 seconds
+#define BATCH_PERIOD_MS 180000 // 60 seconds (1 minute)
+#define MAX_PACKETS_IN_BATCH 200 // Maximum packets to store in 60 seconds
+#define MAX_PACKETS_PER_BATCH   50  // İstersen dinamik hesaplatabilirsin
 
 typedef struct {
-    uint8_t node_id;
-    int16_t td;
-    int16_t ta;
-    uint8_t h;
-    int16_t ax;
-    int16_t ay;
-    int16_t az;
-    uint8_t crc;
-    uint32_t timestamp;
-} SensorData_t;
+    uint8_t node_id;      		// S-01 = 1, S-02 = 2, etc.
+    int16_t td;           		// Digital temp (0.01°C)
+    int16_t ta;           		// Analog temp (0.01°C)
+    uint8_t h;            		// Humidity (%)
+    int16_t ax, ay, az;   		// Accelerometer (mg)
+    uint32_t timestamp;   		// When packet was received
+    int16_t rssi;         		// Signal strength
+    int8_t snr;           		// Signal to noise ratio
+} ReceivedPacket_t;
 
-static SensorData_t dataBuffer[MAX_SNODES];
-static uint8_t dataCount = 0;
-static uint8_t missingNodes[MAX_SNODES];
-static uint8_t missingCount = 0;
-static UTIL_TIMER_Object_t batchTimer;
+
+// Buffer to store ALL received packets during batch period
+static ReceivedPacket_t packetBuffer[MAX_PACKETS_IN_BATCH];
+static uint16_t packetCount = 0;
+static UTIL_TIMER_Object_t phaseTimer;          // Main gateway phase timer
+static UTIL_TIMER_Object_t configBroadcastTimer; // Config broadcast retry timer
+static uint32_t batch_counter = 0;
 
 uint8_t deger = 1;
-
-
-
-typedef struct {
-    uint8_t node_id;      // S-01 = 1, S-02 = 2, etc.
-    int16_t td;           // Digital temp (0.01°C)
-    int16_t ta;           // Analog temp (0.01°C)
-    uint8_t h;            // Humidity (%)
-    int16_t ax, ay, az;   // Accelerometer (mg)
-    bool valid;           // Data received in current batch window
-    uint32_t last_seen;   // Timestamp of last data
-} SensorNode_t;
-
-static SensorNode_t snodes[MAX_SNODES];
-static UTIL_TIMER_Object_t batchTimer;
-static uint32_t batch_counter = 0;
 int32_t temperature = 0;
 int32_t humidity = 0;
+
+// Globalde tanımla (dosyanın en üstüne, fonksiyon dışında)
+#define JSON_BUFFER_SIZE   7000   // İhtiyacına göre 4K veya 8K seç
+char jsonBuffer[JSON_BUFFER_SIZE];
+// Gateway Operation Phases
+typedef enum {
+    PHASE_LISTENING = 0,    // 30s: Listen for node data
+    PHASE_CONFIG_CHECK,     // Check broker for config updates
+    PHASE_DATA_SEND,        // Send collected data to broker
+    PHASE_CONFIG_BROADCAST  // 15s: Broadcast config to nodes (if updated)
+} GatewayPhase_t;
+
+// Gateway Configuration Management
+typedef struct {
+    uint8_t version;        // Config version
+    uint32_t period_ms;     // Node transmission period in milliseconds
+    uint8_t updated;        // Flag: 1 if config was updated and needs broadcast
+    uint8_t broadcast_active; // Flag: 1 if currently broadcasting config
+} GatewayConfig_t;
+
+static GatewayConfig_t gatewayConfig = {
+    .version = 1,           // Default version
+    .period_ms = 3000,      // Default 3 seconds for nodes
+    .updated = 0,
+    .broadcast_active = 0
+};
+
+static GatewayPhase_t currentPhase = PHASE_LISTENING;
+static uint8_t last_checked_version = 0;  // Track last processed config version
 
 /* USER CODE END PV */
 
@@ -193,24 +202,44 @@ static void OnledEvent(void *context);
 static void PingPong_Process(void);
 
 /**
- * @brief Gateway: Publish batch data to MQTT
+ * @brief Gateway: Main phase timer handler - controls 30s listen → config → data → broadcast cycle
  */
-static void PublishBatchToMQTT(void *context);
+static void GatewayPhaseHandler(void *context);
 
 /**
- * @brief Calculate CRC-8/MAXIM for data validation
+ * @brief Gateway: Config broadcast retry timer handler - sends config every 2s during broadcast phase
  */
-static uint8_t calculate_crc8(uint8_t *data, uint8_t len);
+static void ConfigBroadcastHandler(void *context);
 
 /**
- * @brief Check for missing nodes and update missing array
+ * @brief Check broker for config updates
  */
-static void CheckMissingNodes(void);
+static void CheckBrokerConfig(void);
 
 /**
- * @brief Send CONFIG message to sensors via LoRa
+ * @brief Parse config message and update gateway settings
  */
-static void SendConfigMessage(uint32_t period);
+void ParseConfigMessage(const char* message);
+
+/**
+ * @brief Update gateway config if new version received
+ */
+static void UpdateGatewayConfig(uint8_t version, uint32_t period_ms);
+
+/**
+ * @brief Send collected data to broker
+ */
+static void SendDataToBroker(void);
+
+/**
+ * @brief Send config packet to nodes via LoRa
+ */
+static void SendConfigToNodes(void);
+
+/**
+ * @brief Calculate CRC8 for config packet
+ */
+static uint8_t CalculateCRC8(uint8_t *data, uint8_t length);
 
 /* USER CODE END PFP */
 
@@ -219,7 +248,7 @@ void SubghzApp_Init(void)
 {
   /* USER CODE BEGIN SubghzApp_Init_1 */
 
-	APP_LOG(TS_OFF, VLEVEL_M, "\n\rPING PONG\n\r");
+	APP_LOG(TS_OFF, VLEVEL_M, "\n\rLORA GATEWAY\n\r");
 	/* Get SubGHY_Phy APP version*/
 	APP_LOG(TS_OFF, VLEVEL_M, "APPLICATION_VERSION: V%X.%X.%X\r\n",
 			(uint8_t)(APP_VERSION_MAIN), (uint8_t)(APP_VERSION_SUB1),
@@ -247,8 +276,7 @@ void SubghzApp_Init(void)
   Radio.Init(&RadioEvents);
 
   /* USER CODE BEGIN SubghzApp_Init_2 */
-	/*calculate random delay for synchronization*/
-	random_delay = (Radio.Random()) >> 22; /*10bits random e.g. from 0 to 1023 ms*/
+	/* Gateway mode - no random delay needed */
 
 	/* Radio Set frequency */
 	Radio.SetChannel(RF_FREQUENCY);
@@ -297,9 +325,8 @@ void SubghzApp_Init(void)
 	/*fills tx buffer*/
 	memset(BufferTx, 0x0, MAX_APP_BUFFER_SIZE);
 
-	APP_LOG(TS_ON, VLEVEL_L, "rand=%d\n\r", random_delay);
-	APP_LOG(TS_ON, VLEVEL_L, "SubGHz Radio initialized - Waiting for MQTT connection\n\r");
-	
+	APP_LOG(TS_ON, VLEVEL_L, "LoRa Gateway Radio initialized - Waiting for MQTT connection\n\r");
+
 	// Don't start LoRa operations here - wait for MQTT connection
   /* USER CODE END SubghzApp_Init_2 */
 }
@@ -309,27 +336,35 @@ char receiver_buffer[250] = {0};
 
 // Start LoRa Gateway operations after MQTT is connected
 void StartLoRaGateway(void) {
-	/*starts reception - Gateway mode*/
-	APP_LOG(TS_ON, VLEVEL_L, "Gateway Mode - Waiting for sensor data\n\r");
-	LoRaState = RX;  // Start in receiving mode for Gateway
-	
-	/* Initialize sensor nodes array */
-	for (int i = 0; i < MAX_SNODES; i++) {
-		snodes[i].node_id = i + 1;  // S-01, S-02, etc.
-		snodes[i].valid = false;
-	}
-	
-	/* Create and start batch timer */
-	UTIL_TIMER_Create(&batchTimer, BATCH_PERIOD_MS, UTIL_TIMER_PERIODIC, PublishBatchToMQTT, NULL);
-	UTIL_TIMER_Start(&batchTimer);
-	APP_LOG(TS_ON, VLEVEL_L, "Batch timer started - %d ms period\n\r", BATCH_PERIOD_MS);
-	
+	APP_LOG(TS_ON, VLEVEL_L, "Starting LoRa Gateway with 4-phase cycle\n\r");
+
+	/* Initialize packet buffer */
+	packetCount = 0;
+	memset(packetBuffer, 0, sizeof(packetBuffer));
+	printf("*** Packet buffer initialized: packetCount = %d ***\n", packetCount);
+
+	/* Initialize gateway phase system */
+	currentPhase = PHASE_LISTENING;
+	gatewayConfig.broadcast_active = 0;
+
+	/* Create phase timer for main gateway cycle (30s listening phase) */
+	UTIL_TIMER_Create(&phaseTimer, BATCH_PERIOD_MS, UTIL_TIMER_ONESHOT, GatewayPhaseHandler, NULL);
+
+	/* Create config broadcast timer (2s retry during broadcast phase) */
+	UTIL_TIMER_Create(&configBroadcastTimer, 2000, UTIL_TIMER_ONESHOT, ConfigBroadcastHandler, NULL);
+
+	/* Start with listening phase */
+	UTIL_TIMER_Start(&phaseTimer);
+	printf("*** PHASE TIMER STARTED - Listening phase (30s) ***\n");
+	APP_LOG(TS_ON, VLEVEL_L, "Gateway phase timer started - Phase: LISTENING\n\r");
+
 	/*register task to to be run in while(1) after Radio IT*/
 	UTIL_SEQ_RegTask((1 << CFG_SEQ_Task_SubGHz_Phy_App_Process), UTIL_SEQ_RFU,
 			PingPong_Process);
-	
+
 	// Start listening for incoming packets immediately
-	APP_LOG(TS_ON, VLEVEL_L, "Starting Gateway RX mode...\n\r");
+	APP_LOG(TS_ON, VLEVEL_L, "Starting Gateway RX mode - Phase: LISTENING\n\r");
+	LoRaState = RX;
 	Radio.Rx(RX_TIMEOUT_VALUE);
 }
 /* USER CODE END EF */
@@ -339,13 +374,8 @@ static void OnTxDone(void)
 {
   /* USER CODE BEGIN OnTxDone */
 	APP_LOG(TS_ON, VLEVEL_L, "OnTxDone\n\r");
-	/* Update the LoRaState of the FSM*/
-#ifdef TRANSMITTER
-
-  LoRaState = RX;
-#else
-  LoRaState = TX;
-#endif
+	/* Gateway: After TX, return to RX mode */
+	LoRaState = TX; // Trigger PingPong_Process to restart RX
 
 	/* Run PingPong process in background*/
 	UTIL_SEQ_SetTask((1 << CFG_SEQ_Task_SubGHz_Phy_App_Process),
@@ -370,40 +400,52 @@ static void OnRxDone(uint8_t *payload, uint16_t size, int16_t rssi, int8_t LoraS
   SnrValue = 0; /*not applicable in GFSK*/
 #endif /* USE_MODEM_LORA | USE_MODEM_FSK */
 
-	// Gateway mode: Parse DATA payload and store in batch
+	// Gateway mode: Parse DATA payload and store ALL packets in buffer
 	if (size >= 14 && payload[0] == 0xD1) { // DATA payload type + CRC
 		// Parse sensor data from LoRa payload according to NEW frame structure
 		uint8_t type = payload[0];                               // Frame type (0xD1)
 		uint8_t node_id = payload[1];                            // Node ID (S-01=1, S-02=2, etc.)
 		int16_t td = (int16_t)(payload[2] | (payload[3] << 8));  // Digital temp (0.01°C)
-		int16_t ta = (int16_t)(payload[4] | (payload[5] << 8));  // Analog temp (0.01°C) 
+		int16_t ta = (int16_t)(payload[4] | (payload[5] << 8));  // Analog temp (0.01°C)
 		uint8_t h = payload[6];                                  // Humidity (%)
 		int16_t ax = (int16_t)(payload[7] | (payload[8] << 8));  // Accel X (mg)
 		int16_t ay = (int16_t)(payload[9] | (payload[10] << 8)); // Accel Y (mg)
 		int16_t az = (int16_t)(payload[11] | (payload[12] << 8)); // Accel Z (mg)
 		uint8_t crc = payload[13];                               // CRC-8/MAXIM
-		
+
 		APP_LOG(TS_ON, VLEVEL_L, "DATA from S-%02d: TD=%.2f°C TA=%.2f°C H=%d%% AX=%dmg AY=%dmg AZ=%dmg\n\r",
 				node_id, td/100.0f, ta/100.0f, h, ax, ay, az);
-		
-		// Store in batch array
-		if (node_id >= 1 && node_id <= MAX_SNODES) {
-			snodes[node_id-1].node_id = node_id;
-			snodes[node_id-1].td = td;
-			snodes[node_id-1].ta = ta;
-			snodes[node_id-1].h = h;
-			snodes[node_id-1].ax = ax;
-			snodes[node_id-1].ay = ay;
-			snodes[node_id-1].az = az;
-			snodes[node_id-1].valid = true;
-			snodes[node_id-1].last_seen = HAL_GetTick();
-			
-			APP_LOG(TS_ON, VLEVEL_L, "Stored in batch for S-%02d\n\r", node_id);
+
+		// Store EVERY packet in the buffer (not just latest per node)
+		if (node_id >= 1 && node_id <= MAX_SNODES && packetCount < MAX_PACKETS_IN_BATCH) {
+			printf("*** DEBUG: Adding packet %d from S-%02d ***\n\r", packetCount + 1, node_id);
+
+			packetBuffer[packetCount].node_id = node_id;
+			packetBuffer[packetCount].td = td;
+			packetBuffer[packetCount].ta = ta;
+			packetBuffer[packetCount].h = h;
+			packetBuffer[packetCount].ax = ax;
+			packetBuffer[packetCount].ay = ay;
+			packetBuffer[packetCount].az = az;
+			packetBuffer[packetCount].timestamp = HAL_GetTick();
+			packetBuffer[packetCount].rssi = rssi;
+			packetBuffer[packetCount].snr = LoraSnr_FskCfo;
+
+			packetCount++;
+
+			printf("*** DEBUG: Packet stored! Total packets in buffer: %d ***\n\r", packetCount);
+			APP_LOG(TS_ON, VLEVEL_L, "Packet %d stored from S-%02d (Total: %d packets)\n\r",
+					packetCount, node_id, packetCount);
+		} else if (packetCount >= MAX_PACKETS_IN_BATCH) {
+			printf("*** WARNING: Packet buffer full! Dropping packet from S-%02d ***\n\r", node_id);
+			APP_LOG(TS_ON, VLEVEL_L, "WARNING: Packet buffer full! Dropping packet from S-%02d\n\r", node_id);
+		} else {
+			printf("*** ERROR: Invalid node_id %d or other error ***\n\r", node_id);
 		}
 	}
 
 	LoRaState = TX;  // Trigger PingPong_Process to restart RX
-	
+
 	/* Clear BufferRx*/
 	memset(BufferRx, 0, MAX_APP_BUFFER_SIZE);
 	/* Record payload size*/
@@ -440,7 +482,11 @@ static void OnTxTimeout(void)
 			CFG_SEQ_Prio_0);
   /* USER CODE END OnTxTimeout */
 }
-
+static void OnledEvent(void *context) {
+	HAL_GPIO_TogglePin(LED2_GPIO_Port, LED2_Pin); /* LED_GREEN */
+//	HAL_GPIO_TogglePin(LED3_GPIO_Port, LED3_Pin); /* LED_RED */
+	UTIL_TIMER_Start(&timerLed);
+}
 static void OnRxTimeout(void)
 {
   /* USER CODE BEGIN OnRxTimeout */
@@ -487,7 +533,7 @@ static void PingPong_Process(void) {
 		LoRaState = RX;
 		break;
 	case RX_ERROR:
-		// Error, restart listening  
+		// Error, restart listening
 		APP_LOG(TS_ON, VLEVEL_L, "Gateway: RX error, restart listening\n\r");
 		Radio.Rx(RX_TIMEOUT_VALUE);
 		LoRaState = RX;
@@ -506,127 +552,454 @@ static void PingPong_Process(void) {
 	}
 }
 
-static void OnledEvent(void *context) {
-	HAL_GPIO_TogglePin(LED2_GPIO_Port, LED2_Pin); /* LED_GREEN */
-//	HAL_GPIO_TogglePin(LED3_GPIO_Port, LED3_Pin); /* LED_RED */
-	UTIL_TIMER_Start(&timerLed);
+/**
+ * @brief Gateway Phase Handler - Main 4-phase cycle controller
+ * Phase 1: LISTENING (30s) → Phase 2: CONFIG_CHECK → Phase 3: DATA_SEND → Phase 4: CONFIG_BROADCAST (15s if needed)
+ */
+static void GatewayPhaseHandler(void *context) {
+    printf("\n=== GATEWAY PHASE TRANSITION ===\n");
+    printf("Current phase: %d\n", currentPhase);
+    printf("Current time: %lu ms\n", HAL_GetTick());
+    printf("Packets collected: %d\n", packetCount);
+
+    switch (currentPhase) {
+        case PHASE_LISTENING:
+            printf("*** PHASE 1 COMPLETE: 30s Listening finished ***\n");
+            currentPhase = PHASE_CONFIG_CHECK;
+            // Immediately process config check
+            GatewayPhaseHandler(NULL);
+            break;
+
+        case PHASE_CONFIG_CHECK:
+            printf("*** PHASE 2: Config check from broker ***\n");
+            CheckBrokerConfig();
+            currentPhase = PHASE_DATA_SEND;
+            // Immediately process data send
+            GatewayPhaseHandler(NULL);
+            break;
+
+        case PHASE_DATA_SEND:
+            printf("*** PHASE 3: Sending data to broker ***\n");
+            SendDataToBroker();
+
+            // Check if config broadcast needed
+            if (gatewayConfig.updated) {  //burada gateway config updated değilde config devam ediyor flagı ayarlasak ?
+                UTIL_TIMER_Stop(&phaseTimer);
+                UTIL_TIMER_Stop(&configBroadcastTimer);
+                printf("*** Config updated - Starting PHASE 4: Config broadcast (15s) ***\n");
+                currentPhase = PHASE_CONFIG_BROADCAST;
+                gatewayConfig.broadcast_active = 1;
+
+                // Start config broadcast timer (2s retry)
+                UTIL_TIMER_Start(&configBroadcastTimer);
+
+                // Set phase timer for 15s broadcast period
+                UTIL_TIMER_SetPeriod(&phaseTimer, 15000);
+                UTIL_TIMER_Start(&phaseTimer);
+            } else {
+                printf("*** No config update - Returning to PHASE 1: Listening (30s) ***\n");
+                currentPhase = PHASE_LISTENING;
+
+                // Reset packet buffer for next cycle
+                packetCount = 0;
+                memset(packetBuffer, 0, sizeof(packetBuffer));
+
+                // Restart listening phase
+                UTIL_TIMER_SetPeriod(&phaseTimer, BATCH_PERIOD_MS);
+                UTIL_TIMER_Start(&phaseTimer);
+
+                // Ensure RX mode
+                if (LoRaState != RX) {
+                    Radio.Rx(RX_TIMEOUT_VALUE);
+                    LoRaState = RX;
+                }
+            }
+            break;
+
+        case PHASE_CONFIG_BROADCAST:
+            printf("*** PHASE 4 COMPLETE: 15s Config broadcast finished ***\n");
+
+            // Stop config broadcast
+            gatewayConfig.broadcast_active = 0;
+            gatewayConfig.updated = 0;  // Clear update flag
+            UTIL_TIMER_Stop(&configBroadcastTimer);
+
+            // Return to listening phase
+            currentPhase = PHASE_LISTENING;
+
+            // Reset packet buffer for next cycle
+            packetCount = 0;
+            memset(packetBuffer, 0, sizeof(packetBuffer));
+
+            // Restart listening phase (30s)
+            UTIL_TIMER_SetPeriod(&phaseTimer, BATCH_PERIOD_MS);
+            UTIL_TIMER_Start(&phaseTimer);
+
+            // Ensure RX mode
+            printf("*** Returning to PHASE 1: Listening (30s) ***\n");
+            if (LoRaState != RX) {
+                Radio.Rx(RX_TIMEOUT_VALUE);
+                LoRaState = RX;
+            }
+            break;
+    }
+
+    printf("=== NEW PHASE: %d ===\n\n", currentPhase);
 }
 
 /**
- * @brief Gateway: Publish batch data to MQTT in JSON format
+ * @brief Config Broadcast Handler - Sends config packet every 2s during broadcast phase
  */
-static void PublishBatchToMQTT(void *context) {
+static void ConfigBroadcastHandler(void *context) {
+    if (gatewayConfig.broadcast_active && currentPhase == PHASE_CONFIG_BROADCAST) {
+        printf("*** Config broadcast retry - sending to nodes ***\n");
+        SendConfigToNodes();
+
+        // Restart timer for next broadcast (2s interval)
+        UTIL_TIMER_Start(&configBroadcastTimer);
+    }
+}
+
+/**
+ * @brief Check broker for config updates before sending data
+ */
+static void CheckBrokerConfig(void) {
+    extern volatile FlagStatus flag_mqtt_rx_done;
+    extern FlagStatus volatile flag_waitMqttData;
+    extern FlagStatus volatile flag_mqtt_connected;
+    extern APP_mainStateTypdef mainState;
     extern char mqttPacketBuffer[];
     extern MQTT_Config mqttConfig;
-    
-    // Build JSON batch message according to scenario
-    char json[800];
-    int len = snprintf(json, sizeof(json), 
-        "{\n"
-        "  \"type\": \"data_batch\",\n"
-        "  \"gw\": \"GW-001\",\n"
-        "  \"batch\": %lu,\n"
-        "  \"timestamp\": %lu,\n"
-        "  \"nodes\": [\n", 
-        batch_counter++, HAL_GetTick());
-    
-    int node_count = 0;
-    
-    // Add valid nodes that sent data in this batch window
-    for (int i = 0; i < MAX_SNODES; i++) {
-        if (snodes[i].valid) {
-            if (node_count > 0) {
-                len += snprintf(json + len, sizeof(json) - len, ",\n");
-            }
-            len += snprintf(json + len, sizeof(json) - len,
-                "    { \"id\": \"S-%02d\", \"td\": %d, \"ta\": %d, \"h\": %d, \"ax\": %d, \"ay\": %d, \"az\": %d }",
-                snodes[i].node_id,
-                snodes[i].td,  // Keep as 0.01°C units (integer)
-                snodes[i].ta,  // Keep as 0.01°C units (integer)
-                snodes[i].h,
-                snodes[i].ax, snodes[i].ay, snodes[i].az);
-            node_count++;
-        }
+
+    printf("\n=== CheckBrokerConfig: Enhanced MQTT Config Reception ===\n");
+    printf("MQTT Status: connected=%d, mainState=%d, flag_rx_done=%d\n",
+           flag_mqtt_connected, mainState, flag_mqtt_rx_done);
+
+    if (flag_mqtt_connected != SET) {
+        printf("ERROR: MQTT NOT CONNECTED!\n");
+        return;
     }
-    
-    len += snprintf(json + len, sizeof(json) - len, "\n  ],\n");
-    
-    // Add missing nodes (expected but not received)
-    len += snprintf(json + len, sizeof(json) - len, "  \"missing\": [");
-    int missing_count = 0;
-    for (int i = 1; i <= MAX_SNODES; i++) {  // Node IDs are 1-6
-        if (!snodes[i-1].valid) {
-            if (missing_count > 0) {
-                len += snprintf(json + len, sizeof(json) - len, ", ");
-            }
-            len += snprintf(json + len, sizeof(json) - len, "\"S-%02d\"", i);
-            missing_count++;
-        }
-    }
-    len += snprintf(json + len, sizeof(json) - len, "]\n}");
-    
-    // Send to MQTT broker via ESP32
-    printf("Publishing batch %lu: %d nodes, %d missing\n", batch_counter-1, node_count, missing_count);
-    
-    // Clear MQTT buffer and publish
+
+    // Clear packet buffer
     memset(mqttPacketBuffer, 0, MQTT_DATA_PACKET_BUFF_SIZE);
-    Wifi_MqttPubRaw2(mqttPacketBuffer, mqttConfig.pubtopic, strlen(json), json, QOS_0, RTN_0, POLLING_MODE);
-    
-    // Reset all nodes for next batch period
-    for (int i = 0; i < MAX_SNODES; i++) {
-        snodes[i].valid = false;
+
+    printf("Starting MQTT config check with ring buffer...\n");
+    // Print ring buffer debug info
+        extern volatile uint32_t dbg_irq_count, dbg_rxne_hits, dbg_rdr_reads, dbg_flag_sets;
+        extern volatile uint32_t dbg_idle_hits, dbg_ore_hits;
+        extern volatile uint8_t dbg_last_byte;
+        printf("=== RING BUFFER DEBUG INFO ===\n");
+        printf("IRQ Count: %lu, RXNE Hits: %lu, RDR Reads: %lu, Flag Sets: %lu\n",
+               dbg_irq_count, dbg_rxne_hits, dbg_rdr_reads, dbg_flag_sets);
+        printf("IDLE Hits: %lu, ORE Hits: %lu, Last Byte: 0x%02X\n",
+               dbg_idle_hits, dbg_ore_hits, dbg_last_byte);
+
+    // Try multiple times to receive complete config message
+    for (int attempt = 0; attempt < 3; attempt++) {
+        printf("Attempt %d: Triggering MQTT task...\n", attempt + 1);
+
+        // Clear flag and trigger MQTT task
+        flag_mqtt_rx_done = RESET;
+        flag_waitMqttData = SET;
+        UTIL_SEQ_SetTask((1 << CFG_SEQ_Task_MQTT_Process), CFG_SEQ_Prio_0);
+
+        // Wait for data to arrive
+
+        // Check if we have data in ring buffer
+        uint16_t available_bytes = MQTT_GetAvailableBytes();
+        printf("Available bytes in ring buffer: %d\n", available_bytes);
+
+        if (available_bytes > 0) {
+            // Read complete message from ring buffer
+            char config_message[512] = {0};
+            uint16_t bytes_read = MQTT_ReadString(config_message, sizeof(config_message));
+
+            printf("Read %d bytes from ring buffer: %s\n", bytes_read, config_message);
+
+            // Check if this looks like a config message
+            if (strstr(config_message, "\"type\"") &&
+                (strstr(config_message, "161") || strstr(config_message, "0xA1"))) {
+                printf("*** SUCCESS: Config message found! ***\n");
+                printf("Config message: %s\n", config_message);
+
+                // Parse the config message
+                ParseConfigMessage(config_message);
+                return;
+            }
+        }
+
+        // If no ring buffer data, check legacy flag
+        if (flag_mqtt_rx_done == SET) {
+            printf("Legacy flag set, but no ring buffer data\n");
+            flag_mqtt_rx_done = RESET;
+        }
     }
-    
-    // Restart batch timer for next 30-second window
-    UTIL_TIMER_Start(&batchTimer);
+
+    printf("=== CheckBrokerConfig: No config message found ===\n");
 }
 
 /**
- * @brief Calculate CRC-8/MAXIM for data validation
+ * @brief Parse config message and update gateway settings
+ * Expected format: {"type":161,"version":3,"period":5000} or binary format
  */
-static uint8_t calculate_crc8(uint8_t *data, uint8_t len) {
-    uint8_t crc = 0x00;
-    while (len--) {
-        uint8_t inbyte = *data++;
-        for (uint8_t i = 8; i; i--) {
-            uint8_t mix = (crc ^ inbyte) & 0x01;
-            crc >>= 1;
-            if (mix) crc ^= 0x8C;
-            inbyte >>= 1;
+void ParseConfigMessage(const char* message) {
+    printf("*** ENTERED ParseConfigMessage FUNCTION ***\n");
+    if (!message) {
+        printf("*** ParseConfigMessage: NULL message received ***\n");
+        return;
+    }
+    printf("*** ParseConfigMessage: Processing: [%s] (len=%zu) ***\n", message, strlen(message));
+
+    uint8_t config_version = 0;
+    uint32_t config_period = 0;
+
+    // Try JSON format first: {"type":161,"version":3,"period":5000}
+    if (strstr(message, "\"type\"") && strstr(message, "161")) {
+        printf("*** Found JSON type and 161 ***\n");
+        char* version_ptr = strstr(message, "\"version\":");
+        char* period_ptr = strstr(message, "\"period\":");
+        printf("*** version_ptr found: %s ***\n", version_ptr ? "YES" : "NO");
+        printf("*** period_ptr found: %s ***\n", period_ptr ? "YES" : "NO");
+
+        if (version_ptr && period_ptr) {
+            // Parse version number safely
+            version_ptr += 10; // Skip "version":
+            while (*version_ptr == ' ' || *version_ptr == ':') version_ptr++; // Skip whitespace and :
+            config_version = (uint8_t)atoi(version_ptr);
+            printf("*** Version parsed: %d from string: [%.20s] ***\n", config_version, version_ptr);
+
+            // Parse period number safely
+            period_ptr += 9; // Skip "period":
+            while (*period_ptr == ' ' || *period_ptr == ':') period_ptr++; // Skip whitespace and :+
+            printf("*** Period pointer at: [%.20s] ***\n", period_ptr);
+
+            // Extract number only (stop at non-digit characters)
+            char period_str[16] = {0};
+            int i = 0;
+            while (period_ptr[i] >= '0' && period_ptr[i] <= '9' && i < 15) {
+                period_str[i] = period_ptr[i];
+                i++;
+            }
+            period_str[i] = '\0';
+            config_period = (uint32_t)atoi(period_str);
+            printf("*** Period extracted: [%s] → parsed as: %lu ***\n", period_str, config_period);
+
+            printf("*** JSON Config parsed: version=%d, period=%lu ms (extracted from: %s) ***\n",
+                   config_version, config_period, period_str);
         }
     }
+    // Try binary format: [TYPE=0xA1][VERSION][PERIOD_MS(4B)][CRC8(1B)]
+    else if (message[0] == 0xA1 && strlen(message) >= 7) {
+        config_version = message[1];
+        config_period = (uint32_t)(message[2] | (message[3] << 8) | (message[4] << 16) | (message[5] << 24));
+
+        printf("*** Binary Config parsed: version=%d, period=%lu ms ***\n", config_version, config_period);
+    }
+
+    // Update gateway config if valid and version changed
+    if (config_version > 0 && config_period > 0 && config_version != gatewayConfig.version) {
+        printf("*** Updating config: version=%d -> %d, period=%lu -> %lu ***\n",
+               gatewayConfig.version, config_version, gatewayConfig.period_ms, config_period);
+        UpdateGatewayConfig(config_version, config_period);
+        last_checked_version = config_version;
+    } else if (config_version == gatewayConfig.version) {
+        printf("*** Config NOT updated: same version=%d (period would be %lu) ***\n",
+               config_version, config_period);
+    } else {
+        printf("*** Config NOT updated: version=%d, period=%lu (invalid values) ***\n",
+               config_version, config_period);
+    }
+}
+
+/**
+ * @brief Update gateway config if new version received
+ */
+static void UpdateGatewayConfig(uint8_t version, uint32_t period_ms) {   //timerlerin hepsi duruk burda
+    printf("*** UpdateGatewayConfig: Old version=%d, period=%lu ms ***\n",
+        gatewayConfig.version, gatewayConfig.period_ms);
+
+    gatewayConfig.version = version;
+    gatewayConfig.period_ms = period_ms;
+    gatewayConfig.updated = 1;  // Enable broadcast to nodes
+
+    printf("*** UpdateGatewayConfig: New version=%d, period=%lu ms (broadcast ENABLED) ***\n",
+        gatewayConfig.version, gatewayConfig.period_ms);
+}
+
+
+/**
+ * @brief Send collected data to broker
+ */
+
+static void SendDataToBroker(void) {
+    extern char mqttPacketBuffer[];
+    extern MQTT_Config mqttConfig;
+
+    printf("*** SendDataToBroker: Sending %d packets to broker ***\n", packetCount);
+
+    if (packetCount == 0) {
+        // ---- NO PACKETS: send empty batch ----
+        int len = snprintf(jsonBuffer, sizeof(jsonBuffer),
+            "{\n"
+            "  \"type\": \"data_batch\",\n"
+            "  \"gw\": \"GW-001\",\n"
+            "  \"batch\": %lu,\n"
+            "  \"timestamp\": %lu,\n"
+            "  \"config_version\": %d,\n"
+            "  \"node_period_ms\": %lu,\n"
+            "  \"packets\": []\n"
+            "}",
+            ++batch_counter,
+            HAL_GetTick(),
+            gatewayConfig.version,
+            gatewayConfig.period_ms);
+
+        memset(mqttPacketBuffer, 0, MQTT_DATA_PACKET_BUFF_SIZE);
+        Wifi_MqttPubRaw2(mqttPacketBuffer, mqttConfig.pubtopic, len, jsonBuffer, QOS_0, RTN_0, POLLING_MODE);
+
+        printf("*** Empty batch sent to broker ***\n");
+        return;
+    }
+
+    // ---- THERE ARE PACKETS ----
+    int packets_sent = 0;
+    int batch_index = 0;
+
+    while (packets_sent < packetCount) {
+        int len = snprintf(jsonBuffer, sizeof(jsonBuffer),
+            "{\n"
+            "  \"type\": \"data_batch\",\n"
+            "  \"gw\": \"GW-001\",\n"
+            "  \"batch\": %lu,\n"
+            "  \"timestamp\": %lu,\n"
+            "  \"config_version\": %d,\n"
+            "  \"node_period_ms\": %lu,\n"
+            "  \"batch_index\": %d,\n"
+            "  \"packets\": [\n",
+            ++batch_counter,
+            HAL_GetTick(),
+            gatewayConfig.version,
+            gatewayConfig.period_ms,
+            batch_index++);
+
+        int first_in_batch = 1;
+
+        for (int i = packets_sent; i < packetCount; i++) {
+            // Bu paketin JSON uzunluğunu TAHMİN ET
+            int estimated_len = snprintf(NULL, 0,
+                "%s    { \"packet\": %d, \"id\": \"S-%02d\", \"td\": %d, \"ta\": %d, \"h\": %d, "
+                "\"ax\": %d, \"ay\": %d, \"az\": %d, \"timestamp\": %lu, \"rssi\": %d, \"snr\": %d }",
+                first_in_batch ? "" : ",\n",
+                i + 1,
+                packetBuffer[i].node_id,
+                packetBuffer[i].td,
+                packetBuffer[i].ta,
+                packetBuffer[i].h,
+                packetBuffer[i].ax,
+                packetBuffer[i].ay,
+                packetBuffer[i].az,
+                packetBuffer[i].timestamp,
+                packetBuffer[i].rssi,
+                packetBuffer[i].snr);
+
+            // Eğer bu paketi eklersek buffer taşacaksa → batch’i kapat ve gönder
+            if (len + estimated_len + 10 >= sizeof(jsonBuffer)) { // +10 kapanış için pay
+                len += snprintf(jsonBuffer + len, sizeof(jsonBuffer) - len, "\n  ]\n}");
+
+                memset(mqttPacketBuffer, 0, MQTT_DATA_PACKET_BUFF_SIZE);
+                Wifi_MqttPubRaw2(mqttPacketBuffer, mqttConfig.pubtopic, len, jsonBuffer, QOS_0, RTN_0, POLLING_MODE);
+
+                printf("*** Batch %d sent: %d packets (%d/%d total) ***\n",
+                       batch_index - 1, i - packets_sent, i, packetCount);
+
+                // Sonraki batch’e buradan devam et
+                packets_sent = i;
+                goto start_new_batch;
+            }
+
+            // Paket sığıyor → ekle
+            len += snprintf(jsonBuffer + len, sizeof(jsonBuffer) - len,
+                "%s    { \"packet\": %d, \"id\": \"S-%02d\", \"td\": %d, \"ta\": %d, \"h\": %d, "
+                "\"ax\": %d, \"ay\": %d, \"az\": %d, \"timestamp\": %lu, \"rssi\": %d, \"snr\": %d }",
+                first_in_batch ? "" : ",\n",
+                i + 1,
+                packetBuffer[i].node_id,
+                packetBuffer[i].td,
+                packetBuffer[i].ta,
+                packetBuffer[i].h,
+                packetBuffer[i].ax,
+                packetBuffer[i].ay,
+                packetBuffer[i].az,
+                packetBuffer[i].timestamp,
+                packetBuffer[i].rssi,
+                packetBuffer[i].snr);
+
+            first_in_batch = 0;
+        }
+
+        // Batch kapat
+        len += snprintf(jsonBuffer + len, sizeof(jsonBuffer) - len, "\n  ]\n}");
+
+        memset(mqttPacketBuffer, 0, MQTT_DATA_PACKET_BUFF_SIZE);
+        Wifi_MqttPubRaw2(mqttPacketBuffer, mqttConfig.pubtopic, len, jsonBuffer, QOS_0, RTN_0, POLLING_MODE);
+
+        printf("*** Batch %d sent: %d packets (%d/%d total) ***\n",
+               batch_index - 1, packetCount - packets_sent, packetCount, packetCount);
+
+        break; // tüm paketler bitti
+start_new_batch:;
+    }
+}
+
+
+/**
+ * @brief Send config packet to nodes via LoRa
+ * Format: [TYPE=0xA1][VERSION][PERIOD_MS(4B)][CRC8(1B)]
+ */
+static void SendConfigToNodes(void) {
+    uint8_t configPacket[7];
+
+    // Build config packet
+    configPacket[0] = 0xA1;  // TYPE
+    configPacket[1] = gatewayConfig.version;  // VERSION
+    configPacket[2] = (uint8_t)(gatewayConfig.period_ms & 0xFF);        // PERIOD_MS byte 0
+    configPacket[3] = (uint8_t)((gatewayConfig.period_ms >> 8) & 0xFF);  // PERIOD_MS byte 1
+    configPacket[4] = (uint8_t)((gatewayConfig.period_ms >> 16) & 0xFF); // PERIOD_MS byte 2
+    configPacket[5] = (uint8_t)((gatewayConfig.period_ms >> 24) & 0xFF); // PERIOD_MS byte 3
+    configPacket[6] = CalculateCRC8(configPacket, 6);  // CRC8
+
+    printf("*** Sending config to nodes: TYPE=0x%02X, VER=%d, PERIOD=%lu ms, CRC=0x%02X ***\n",
+           configPacket[0], configPacket[1], gatewayConfig.period_ms, configPacket[6]);
+
+    // Send via LoRa
+    memcpy(BufferTx, configPacket, 7);
+    Radio.Send(BufferTx, 7);
+
+    printf("*** Config packet sent via LoRa ***\n");
+}
+
+/**
+ * @brief Calculate CRC8 for config packet (CRC-8/MAXIM)
+ */
+static uint8_t CalculateCRC8(uint8_t *data, uint8_t length) {
+    uint8_t crc = 0x00;
+    uint8_t polynomial = 0x31; // CRC-8/MAXIM polynomial
+
+    for (uint8_t i = 0; i < length; i++) {
+        crc ^= data[i];
+        for (uint8_t j = 0; j < 8; j++) {
+            if (crc & 0x80) {
+                crc = (crc << 1) ^ polynomial;
+            } else {
+                crc <<= 1;
+            }
+        }
+    }
+
     return crc;
 }
 
-/**
- * @brief Check for missing nodes and update missing array
- */
-static void CheckMissingNodes(void) {
-    missingCount = 0;
-    for (int i = 0; i < MAX_SNODES; i++) {
-        if (!snodes[i].valid) {
-            missingNodes[missingCount++] = i + 1; // Node IDs are 1-based
-        }
-    }
-}
+/* USER CODE END PrFD */
 
-/**
- * @brief Send CONFIG message to sensors via LoRa
- */
-static void SendConfigMessage(uint32_t period) {
-    uint8_t configFrame[8];
-    configFrame[0] = CONFIG_MSG;           // Message type
-    configFrame[1] = 0xFF;                 // Broadcast to all nodes
-    configFrame[2] = (period >> 24) & 0xFF; // Period in seconds (big-endian)
-    configFrame[3] = (period >> 16) & 0xFF;
-    configFrame[4] = (period >> 8) & 0xFF;
-    configFrame[5] = period & 0xFF;
-    configFrame[6] = 0; // Reserved
-    configFrame[7] = calculate_crc8(configFrame, 7); // CRC
-    
-    APP_LOG(TS_ON, VLEVEL_L, "Sending CONFIG message: period=%lu\n\r", period);
-    Radio.Send(configFrame, 8);
-    LoRaState = TX;
-}
 
 /* USER CODE END PrFD */

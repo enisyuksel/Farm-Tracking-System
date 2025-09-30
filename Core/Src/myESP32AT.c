@@ -1069,9 +1069,17 @@ FUNC_StatusTypeDef Wifi_MqttPub2(char *buffer, const char *topic,const char *dat
 HAL_StatusTypeDef Wifi_SendCommand2(const char* cmd)
 {
   HAL_StatusTypeDef checkStatus;
-
-  checkStatus = HAL_UART_Transmit(&UART_WIFI, (uint8_t*) cmd, strlen (cmd), 500);
-
+  uint32_t dataSize = strlen(cmd);
+  uint32_t timeout = 500; // Base timeout
+  if (dataSize > 1000) {
+    timeout = (dataSize / 100) * 100 + 2000;
+    printf("*** Large data send: %lu bytes, timeout: %lu ms ***\n", dataSize, timeout);
+  }
+  checkStatus = HAL_UART_Transmit(&UART_WIFI, (uint8_t*) cmd, dataSize, timeout);
+  // Add delay after large transmissions
+  if (dataSize > 1000) {
+    HAL_Delay(200);
+  }
   return checkStatus;
 }
 

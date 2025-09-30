@@ -60,6 +60,12 @@ volatile uint8_t g_lora_started = 0;          // LoRa başlatma durumu
 volatile uint32_t g_mqtt_periodic_trigger = 0; // MQTT periyodik sayaç
 volatile uint32_t g_main_loop_counter = 0;     // Ana döngü sayacı
 volatile uint8_t g_mqtt_connected = 0;         // MQTT bağlantı durumu
+
+// MQTT Publish Debug Variables for Live Watch
+volatile uint32_t g_mqtt_publish_attempts = 0; // MQTT publish deneme sayısı
+volatile uint32_t g_mqtt_publish_success = 0;  // Başarılı publish sayısı
+volatile uint32_t g_mqtt_publish_errors = 0;   // Başarısız publish sayısı
+volatile uint32_t g_last_publish_size = 0;     // Son publish veri boyutu
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
