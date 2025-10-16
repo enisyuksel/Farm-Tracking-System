@@ -1,0 +1,3 @@
+/home/enis/workSpace/IQ-Yazilim/MusteriyeGonderilenKod_v00/IQ_Project-main_Ase8bZz/IQ_Project-main/Gateway_v0.1/SubGHz_Phy_PingPong/Utilities/misc/stm32_tiny_vsnprintf.c:91:12:ee_skip_atoi	0	static
+/home/enis/workSpace/IQ-Yazilim/MusteriyeGonderilenKod_v00/IQ_Project-main_Ase8bZz/IQ_Project-main/Gateway_v0.1/SubGHz_Phy_PingPong/Utilities/misc/stm32_tiny_vsnprintf.c:100:14:ee_number	104	static
+/home/enis/workSpace/IQ-Yazilim/MusteriyeGonderilenKod_v00/IQ_Project-main_Ase8bZz/IQ_Project-main/Gateway_v0.1/SubGHz_Phy_PingPong/Utilities/misc/stm32_tiny_vsnprintf.c:485:5:tiny_vsnprintf_like	56	static

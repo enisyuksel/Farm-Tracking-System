@@ -1,0 +1,3 @@
+/home/enis/workSpace/IQ-Yazilim/MusteriyeGonderilenKod_v00/IQ_Project-main_Ase8bZz/IQ_Project-main/Gateway_v0.1/SubGHz_Phy_PingPong/Core/Src/i2c.c:30:6:MX_I2C3_Init	4
+/home/enis/workSpace/IQ-Yazilim/MusteriyeGonderilenKod_v00/IQ_Project-main_Ase8bZz/IQ_Project-main/Gateway_v0.1/SubGHz_Phy_PingPong/Core/Src/i2c.c:73:6:HAL_I2C_MspInit	3
+/home/enis/workSpace/IQ-Yazilim/MusteriyeGonderilenKod_v00/IQ_Project-main_Ase8bZz/IQ_Project-main/Gateway_v0.1/SubGHz_Phy_PingPong/Core/Src/i2c.c:113:6:HAL_I2C_MspDeInit	2

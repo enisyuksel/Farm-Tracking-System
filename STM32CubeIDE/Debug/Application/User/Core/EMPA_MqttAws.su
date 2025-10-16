@@ -1,0 +1,3 @@
+../Application/User/Core/EMPA_MqttAws.c:9:13:MQTT_DebugPrint	16	static
+../Application/User/Core/EMPA_MqttAws.c:64:6:HandleConfigMessage	40	static
+../Application/User/Core/EMPA_MqttAws.c:105:6:MY_MqttAwsProcess	24	static

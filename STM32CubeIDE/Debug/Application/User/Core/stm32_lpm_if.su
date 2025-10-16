@@ -1,0 +1,6 @@
+/home/enis/workSpace/IQ-Yazilim/MusteriyeGonderilenKod_v00/IQ_Project-main_Ase8bZz/IQ_Project-main/Gateway_v0.1/SubGHz_Phy_PingPong/Core/Src/stm32_lpm_if.c:78:6:PWR_EnterOffMode	0	static
+/home/enis/workSpace/IQ-Yazilim/MusteriyeGonderilenKod_v00/IQ_Project-main_Ase8bZz/IQ_Project-main/Gateway_v0.1/SubGHz_Phy_PingPong/Core/Src/stm32_lpm_if.c:85:6:PWR_ExitOffMode	0	static
+/home/enis/workSpace/IQ-Yazilim/MusteriyeGonderilenKod_v00/IQ_Project-main_Ase8bZz/IQ_Project-main/Gateway_v0.1/SubGHz_Phy_PingPong/Core/Src/stm32_lpm_if.c:92:6:PWR_EnterStopMode	8	static
+/home/enis/workSpace/IQ-Yazilim/MusteriyeGonderilenKod_v00/IQ_Project-main_Ase8bZz/IQ_Project-main/Gateway_v0.1/SubGHz_Phy_PingPong/Core/Src/stm32_lpm_if.c:145:6:PWR_ExitSleepMode	8	static
+/home/enis/workSpace/IQ-Yazilim/MusteriyeGonderilenKod_v00/IQ_Project-main_Ase8bZz/IQ_Project-main/Gateway_v0.1/SubGHz_Phy_PingPong/Core/Src/stm32_lpm_if.c:110:6:PWR_ExitStopMode	8	static
+/home/enis/workSpace/IQ-Yazilim/MusteriyeGonderilenKod_v00/IQ_Project-main_Ase8bZz/IQ_Project-main/Gateway_v0.1/SubGHz_Phy_PingPong/Core/Src/stm32_lpm_if.c:129:6:PWR_EnterSleepMode	8	static

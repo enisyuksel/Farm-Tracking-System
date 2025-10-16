@@ -1,0 +1,6 @@
+/home/enis/workSpace/IQ-Yazilim/MusteriyeGonderilenKod_v00/IQ_Project-main_Ase8bZz/IQ_Project-main/Gateway_v0.1/SubGHz_Phy_PingPong/Utilities/lpm/tiny_lpm/stm32_lpm.c:121:6:UTIL_LPM_Init	0	static
+/home/enis/workSpace/IQ-Yazilim/MusteriyeGonderilenKod_v00/IQ_Project-main_Ase8bZz/IQ_Project-main/Gateway_v0.1/SubGHz_Phy_PingPong/Utilities/lpm/tiny_lpm/stm32_lpm.c:128:6:UTIL_LPM_DeInit	0	static
+/home/enis/workSpace/IQ-Yazilim/MusteriyeGonderilenKod_v00/IQ_Project-main_Ase8bZz/IQ_Project-main/Gateway_v0.1/SubGHz_Phy_PingPong/Utilities/lpm/tiny_lpm/stm32_lpm.c:132:6:UTIL_LPM_SetStopMode	0	static,ignoring_inline_asm
+/home/enis/workSpace/IQ-Yazilim/MusteriyeGonderilenKod_v00/IQ_Project-main_Ase8bZz/IQ_Project-main/Gateway_v0.1/SubGHz_Phy_PingPong/Utilities/lpm/tiny_lpm/stm32_lpm.c:157:6:UTIL_LPM_SetOffMode	0	static,ignoring_inline_asm
+/home/enis/workSpace/IQ-Yazilim/MusteriyeGonderilenKod_v00/IQ_Project-main_Ase8bZz/IQ_Project-main/Gateway_v0.1/SubGHz_Phy_PingPong/Utilities/lpm/tiny_lpm/stm32_lpm.c:182:17:UTIL_LPM_GetMode	0	static,ignoring_inline_asm
+/home/enis/workSpace/IQ-Yazilim/MusteriyeGonderilenKod_v00/IQ_Project-main_Ase8bZz/IQ_Project-main/Gateway_v0.1/SubGHz_Phy_PingPong/Utilities/lpm/tiny_lpm/stm32_lpm.c:215:6:UTIL_LPM_EnterLowPower	16	static,ignoring_inline_asm
