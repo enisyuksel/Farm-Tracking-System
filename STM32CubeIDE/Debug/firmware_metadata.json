@@ -1,17 +1,19 @@
 {
-  "firmware_version": 2,
+  "firmware_version": 5,
+  "version_string": "v1.5.0",
   "hardware": "STM32WL55JC",
   "project": "SubGHz_Phy_PingPong",
   "build_date": "2025-10-16",
   "binary_file": "SubGHz_Phy_PingPong.bin",
-  "file_size": 71152,
-  "crc32": "0xA5A6D716",
-  "description": "Gateway OTA Step 3 - Task blocking system with dummy OTA simulation",
+  "file_size": 71864,
+  "crc32": "0xFA761EB7",
+  "description": "Gateway OTA v1.5.0 - Full OTA implementation with HTTP download and flash write simulation",
   "github_raw_url": "https://raw.githubusercontent.com/enisyuksel/Farm-Tracking-System/master/STM32CubeIDE/Debug/SubGHz_Phy_PingPong.bin",
   "features": [
-    "LPUART1 debug system",
-    "Type:150 OTA detection",
-    "LoRa and MQTT task blocking during OTA",
-    "10 second OTA simulation timer"
+    "Firmware version reporting via MQTT",
+    "Type:150 OTA trigger",
+    "ESP32-AT HTTP client for binary download",
+    "OTA process: Download -> Verify -> Flash -> Reboot",
+    "LPUART1 debug system"
   ]
 }

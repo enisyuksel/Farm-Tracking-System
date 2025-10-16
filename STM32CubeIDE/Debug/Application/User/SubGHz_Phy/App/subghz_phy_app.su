@@ -16,7 +16,7 @@
 /home/enis/workSpace/IQ-Yazilim/MusteriyeGonderilenKod_v00/IQ_Project-main_Ase8bZz/IQ_Project-main/Gateway_v0.1/SubGHz_Phy_PingPong/SubGHz_Phy/App/subghz_phy_app.c:585:13:PingPong_Process	8	static
 /home/enis/workSpace/IQ-Yazilim/MusteriyeGonderilenKod_v00/IQ_Project-main_Ase8bZz/IQ_Project-main/Gateway_v0.1/SubGHz_Phy_PingPong/SubGHz_Phy/App/subghz_phy_app.c:1011:13:UpdateGatewayBatchPeriod	24	static
 /home/enis/workSpace/IQ-Yazilim/MusteriyeGonderilenKod_v00/IQ_Project-main_Ase8bZz/IQ_Project-main/Gateway_v0.1/SubGHz_Phy_PingPong/SubGHz_Phy/App/subghz_phy_app.c:1030:13:SendDataToBroker	120	static
-/home/enis/workSpace/IQ-Yazilim/MusteriyeGonderilenKod_v00/IQ_Project-main_Ase8bZz/IQ_Project-main/Gateway_v0.1/SubGHz_Phy_PingPong/SubGHz_Phy/App/subghz_phy_app.c:305:6:SubghzApp_Init	64	static
+/home/enis/workSpace/IQ-Yazilim/MusteriyeGonderilenKod_v00/IQ_Project-main_Ase8bZz/IQ_Project-main/Gateway_v0.1/SubGHz_Phy_PingPong/SubGHz_Phy/App/subghz_phy_app.c:305:6:SubghzApp_Init	72	static
 /home/enis/workSpace/IQ-Yazilim/MusteriyeGonderilenKod_v00/IQ_Project-main_Ase8bZz/IQ_Project-main/Gateway_v0.1/SubGHz_Phy_PingPong/SubGHz_Phy/App/subghz_phy_app.c:396:6:StartLoRaGateway	24	static
 /home/enis/workSpace/IQ-Yazilim/MusteriyeGonderilenKod_v00/IQ_Project-main_Ase8bZz/IQ_Project-main/Gateway_v0.1/SubGHz_Phy_PingPong/SubGHz_Phy/App/subghz_phy_app.c:831:6:ParseConfigMessage	104	static
 /home/enis/workSpace/IQ-Yazilim/MusteriyeGonderilenKod_v00/IQ_Project-main_Ase8bZz/IQ_Project-main/Gateway_v0.1/SubGHz_Phy_PingPong/SubGHz_Phy/App/subghz_phy_app.c:751:13:CheckBrokerConfig	536	static
