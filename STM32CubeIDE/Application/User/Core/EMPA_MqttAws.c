@@ -70,8 +70,6 @@ void HandleConfigMessage(const char* message) {
 
 	/* OTA Update format: {"type":150,"version":1} */
 	if (strstr(message, "\"type\"") && strstr(message, "150")) {
-		MQTT_DebugPrint("TYPE150");
-		
 		// Parse version
 		uint8_t version = 0;
 		char* version_ptr = strstr(message, "\"version\":");
@@ -81,14 +79,13 @@ void HandleConfigMessage(const char* message) {
 			version = (uint8_t)atoi(version_ptr);
 		}
 		
-		// Debug: Print version number
-		char ver_buf[20];
-		snprintf(ver_buf, sizeof(ver_buf), "VER=%d", version);
-		MQTT_DebugPrint(ver_buf);
+		// Debug: OTA Request with version number
+		char ota_msg[50];
+		snprintf(ota_msg, sizeof(ota_msg), "[INFO] OTA Request Version %d", version);
+		MQTT_DebugPrint(ota_msg);
 		
 		// TODO: Call OTA start function here when implemented
 		// Example: OTA_StartUpdate(version);
-		MQTT_DebugPrint("OTA_TODO");
 		return;
 	}
 
@@ -181,12 +178,14 @@ void MY_MqttAwsProcess(void)
 			memset(mqttMsgData.data, 0, sizeof(mqttMsgData.data));
 			uint16_t rawLen = (uint16_t)strlen(mqttPacketBuffer);
 			UART_MqttPacketParser(&mqttMsgData, mqttPacketBuffer, rawLen);
-			printf("\n[MQTT RX] rawLen=%u topic=%s\r\n", rawLen, mqttMsgData.topic_id);
-			printf("[MQTT RX] payload: %s\r\n", mqttMsgData.data);
+			MQTT_DebugPrint("PKT_PARSED");
+			
 			/* Legacy config tipini doğrudan ParseConfigMessage'e de yönlendirelim */
 			if (strstr(mqttMsgData.data, "\"type\"") && strstr(mqttMsgData.data, "161")) {
+				MQTT_DebugPrint("CALL_PARSE");
 				ParseConfigMessage(mqttMsgData.data);
 			} else {
+				MQTT_DebugPrint("CALL_HANDLE");
 				HandleConfigMessage(mqttMsgData.data);
 			}
 			mainState = STATE_MQTT_SUB_RX_MSG;

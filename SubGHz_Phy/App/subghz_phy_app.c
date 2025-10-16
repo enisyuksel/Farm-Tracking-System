@@ -35,6 +35,16 @@
 #include "EMPA_MqttAws.h"
 #include "common.h"
 #include "stm32wlxx_it.h"  // For MQTT ring buffer functions
+
+// LPUART1 Debug Helper
+extern UART_HandleTypeDef hlpuart1;
+static void SUBGHZ_DebugPrint(const char* msg) {
+    if (msg) {
+        HAL_UART_Transmit(&hlpuart1, (uint8_t*)"[SUBGHZ]", 8, 100);
+        HAL_UART_Transmit(&hlpuart1, (uint8_t*)msg, strlen(msg), 1000);
+        HAL_UART_Transmit(&hlpuart1, (uint8_t*)"\r\n", 2, 100);
+    }
+}
 /* USER CODE END Includes */
 
 /* External variables ---------------------------------------------------------*/
@@ -812,11 +822,14 @@ static void CheckBrokerConfig(void) {
  * Expected format: {"type":161,"version":3,"period":5000} for nodes or {"type":162,"version":3,"period":180000} for gateway batch
  */
 void ParseConfigMessage(const char* message) {
+    SUBGHZ_DebugPrint("PARSE_CFG_ENTER");
     printf("*** ENTERED ParseConfigMessage FUNCTION ***\n");
     if (!message) {
+        SUBGHZ_DebugPrint("ERR_NULL_MSG");
         printf("*** ParseConfigMessage: NULL message received ***\n");
         return;
     }
+    SUBGHZ_DebugPrint(message); // Mesajı bas
     printf("*** ParseConfigMessage: Processing: [%s] (len=%zu) ***\n", message, strlen(message));
 
     uint8_t config_version = 0;
@@ -825,6 +838,7 @@ void ParseConfigMessage(const char* message) {
 
     // Try JSON format first: {"type":161,"version":3,"period":5000} or {"type":162,"version":3,"period":180000}
     if (strstr(message, "\"type\"")) {
+        SUBGHZ_DebugPrint("JSON_TYPE_FOUND");
         printf("*** Found JSON type field ***\n");
 
         // Parse type
@@ -833,6 +847,11 @@ void ParseConfigMessage(const char* message) {
             type_ptr += 7; // Skip "type":
             while (*type_ptr == ' ' || *type_ptr == ':') type_ptr++; // Skip whitespace and :
             config_type = (uint16_t)atoi(type_ptr);
+            
+            char type_msg[50];
+            snprintf(type_msg, sizeof(type_msg), "TYPE=%d", config_type);
+            SUBGHZ_DebugPrint(type_msg);
+            
             printf("*** Type parsed: %d ***\n", config_type);
         }
 

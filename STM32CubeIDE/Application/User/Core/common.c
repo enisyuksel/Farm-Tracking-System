@@ -36,6 +36,7 @@ int cnt_uart_callback = 0;
 #include <string.h>
 #include <stdio.h>
 extern volatile FlagStatus flag_mqtt_rx_done;
+extern UART_HandleTypeDef hlpuart1; // ESP32 UART - Debug için
 static char mqttLineBuf[256];
 static uint16_t mqttLineLen = 0;
 
@@ -43,23 +44,24 @@ static uint16_t mqttLineLen = 0;
 static char debugBuffer[1024];
 static uint16_t debugBufferLen = 0;
 
+// LPUART1 Debug Helper
+static void UART_DebugPrint(const char* msg) {
+    if (msg) {
+        HAL_UART_Transmit(&hlpuart1, (uint8_t*)"[UART]", 6, 100);
+        HAL_UART_Transmit(&hlpuart1, (uint8_t*)msg, strlen(msg), 1000);
+        HAL_UART_Transmit(&hlpuart1, (uint8_t*)"\r\n", 2, 100);
+    }
+}
+
 // Manuel debug çağrısı için fonksiyon (konsol'dan çağırabilirsin)
 void MQTT_ClearDebugBuffer(void) {
     debugBufferLen = 0;
-    printf("[DEBUG] Buffer cleared\n");
 }
 
 void MQTT_PrintDebugBuffer(void)
 {
-    if(debugBufferLen > 0) {
-        debugBuffer[debugBufferLen] = 0; // null terminate
-        printf("[DEBUG_BUFFER] Total %d bytes:\n%s\n", debugBufferLen, debugBuffer);
-        printf("[DEBUG_BUFFER] HEX: ");
-        for(int i = 0; i < debugBufferLen && i < 100; i++) {
-            printf("%02X ", (uint8_t)debugBuffer[i]);
-        }
-        printf("\n");
-    }
+    // printf çalışmıyor, bu fonksiyonu boş bırakıyoruz
+    // Eğer debug gerekirse LPUART1 kullan
 }
 
 void MQTT_LineAssembler_Byte(uint8_t ch)
@@ -69,27 +71,19 @@ void MQTT_LineAssembler_Byte(uint8_t ch)
         debugBuffer[debugBufferLen++] = ch;
     }
 
-    // Her byte için debug print (hex ve karakter)
-    printf("[B]%02X", ch);
-    if(ch >= 32 && ch <= 126) printf("(%c)", ch);
-    if(ch == '\r') printf("(CR)");
-    if(ch == '\n') printf("(LF)\n");
-    else printf(" ");
-
     if(mqttLineLen < sizeof(mqttLineBuf)-1) {
         if(ch != '\r' && ch != '\n') {
             mqttLineBuf[mqttLineLen++] = (char)ch;
         } else {
             if(mqttLineLen > 0) {
                 mqttLineBuf[mqttLineLen] = 0;
-                printf("[LINE] %s\n", mqttLineBuf);
 
                 // MQTTSUBRECV kontrolü - başında + olmasa da kabul et, JSON varsa işle
                 if(strstr(mqttLineBuf, "MQTTSUBRECV") && strchr(mqttLineBuf,'{') && strrchr(mqttLineBuf,'}')) {
+                    UART_DebugPrint("MQTTSUBRECV_DETECT");
                     memset(mqttPacketBuffer,0,MQTT_DATA_PACKET_BUFF_SIZE);
                     strncpy(mqttPacketBuffer, mqttLineBuf, MQTT_DATA_PACKET_BUFF_SIZE-1);
                     flag_mqtt_rx_done = SET;
-                    printf("[UART][MQTT] COMPLETE LINE: %s\n", mqttPacketBuffer);
 
                     // JSON'u çıkar ve direkt parse et
                     char *json_start = strchr(mqttLineBuf, '{');
@@ -101,7 +95,7 @@ void MQTT_LineAssembler_Byte(uint8_t ch)
                             memset(json_clean, 0, sizeof(json_clean));
                             memcpy(json_clean, json_start, len);
                             json_clean[len] = 0;
-                            printf("[JSON_EXTRACT] %s\n", json_clean);
+                            UART_DebugPrint("JSON_EXTRACT");
 
                             // Escape karakterleri temizle \" -> "
                             char json_final[200];
@@ -115,10 +109,11 @@ void MQTT_LineAssembler_Byte(uint8_t ch)
                                 }
                             }
                             json_final[j] = 0;
-                            printf("[JSON_CLEAN] %s\n", json_final);
+                            UART_DebugPrint(json_final); // JSON içeriğini bas
 
                             // Config parse çağır
                             extern void ParseConfigMessage(const char* message);
+                            UART_DebugPrint("CALL_PARSE_FROM_UART");
                             ParseConfigMessage(json_final);
                         }
                     }
@@ -131,7 +126,6 @@ void MQTT_LineAssembler_Byte(uint8_t ch)
             mqttLineLen = 0;
         }
     } else {
-        printf("[OVERFLOW] Line too long, resetting\n");
         mqttLineLen = 0; // overflow reset
     }
 }// Callback sadece yeniden silahlamak için minimal bırakıldı (şu an IRQ doğrudan RDR okuyacak)

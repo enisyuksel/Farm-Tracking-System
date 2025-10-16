@@ -1,3 +1,3 @@
 ../Application/User/Core/EMPA_MqttAws.c:9:13:MQTT_DebugPrint	2
 ../Application/User/Core/EMPA_MqttAws.c:64:6:HandleConfigMessage	11
-../Application/User/Core/EMPA_MqttAws.c:105:6:MY_MqttAwsProcess	18
+../Application/User/Core/EMPA_MqttAws.c:102:6:MY_MqttAwsProcess	18
