@@ -1,13 +1,13 @@
 {
-  "firmware_version": 5,
-  "version_string": "v1.5.0",
+  "firmware_version": 4,
+  "version_string": "v1.4.0",
   "hardware": "STM32WL55JC",
   "project": "SubGHz_Phy_PingPong",
   "build_date": "2025-10-16",
   "binary_file": "SubGHz_Phy_PingPong.bin",
   "file_size": 71864,
-  "crc32": "0xFA761EB7",
-  "description": "Gateway OTA v1.5.0 - Full OTA implementation with HTTP download and flash write simulation",
+  "crc32": "0xEEC5644A",
+  "description": "Gateway OTA v1.4.0 - Base version for OTA testing",
   "github_raw_url": "https://raw.githubusercontent.com/enisyuksel/Farm-Tracking-System/master/STM32CubeIDE/Debug/SubGHz_Phy_PingPong.bin",
   "features": [
     "Firmware version reporting via MQTT",
