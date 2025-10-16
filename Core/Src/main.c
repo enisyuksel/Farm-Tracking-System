@@ -35,6 +35,7 @@
 #include "utilities_def.h"
 #include "subghz_phy_app.h"
 #include "sys_app.h"
+#include "ota_manager.h"  // OTA Manager
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -102,6 +103,9 @@ int main(void)
   MX_LPUART1_UART_Init();
   MX_TIM1_Init();
   /* USER CODE BEGIN 2 */
+  // Initialize OTA Manager
+  OTA_Init();
+  
   // MQTT Task Registration
   UTIL_SEQ_RegTask((1 << CFG_SEQ_Task_MQTT_Process), UTIL_SEQ_RFU, MY_MqttAwsProcess);
 

@@ -6,6 +6,7 @@
 "./Application/User/Core/lis2de12.o"
 "./Application/User/Core/main.o"
 "./Application/User/Core/myESP32AT.o"
+"./Application/User/Core/ota_manager.o"
 "./Application/User/Core/rtc.o"
 "./Application/User/Core/sensirion_common.o"
 "./Application/User/Core/sensirion_i2c.o"

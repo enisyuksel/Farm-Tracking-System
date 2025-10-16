@@ -35,6 +35,7 @@
 #include "EMPA_MqttAws.h"
 #include "common.h"
 #include "stm32wlxx_it.h"  // For MQTT ring buffer functions
+#include "ota_manager.h"    // OTA Update Manager
 
 // LPUART1 Debug Helper
 extern UART_HandleTypeDef hlpuart1;
@@ -582,6 +583,12 @@ static void OnRxError(void)
 
 /* USER CODE BEGIN PrFD */
 static void PingPong_Process(void) {
+	// OTA Check: Skip LoRa processing if OTA is active
+	if (OTA_IsActive()) {
+		SUBGHZ_DebugPrint("LORA_BLOCKED_OTA");
+		return;
+	}
+	
 	switch (LoRaState) {
 	case RX:
 		// Gateway mode: Continue listening (this should not normally happen)
@@ -878,6 +885,28 @@ void ParseConfigMessage(const char* message) {
                 printf("*** MAX_SNODES successfully updated to %d ***\n", MAX_SNODES);
             } else {
                 printf("*** ERROR: Invalid Node_Numbers value: %d (must be 1-20) ***\n", new_max_nodes);
+            }
+            return;
+        }
+
+        // Handle type 150: OTA Update Request
+        if (config_type == 150 && version_ptr) {
+            SUBGHZ_DebugPrint("OTA_REQUEST_DETECTED");
+            
+            // Parse version
+            version_ptr += 10; // Skip "version":
+            while (*version_ptr == ' ' || *version_ptr == ':') version_ptr++;
+            config_version = (uint8_t)atoi(version_ptr);
+            
+            char ota_msg[60];
+            snprintf(ota_msg, sizeof(ota_msg), "OTA_VER=%d", config_version);
+            SUBGHZ_DebugPrint(ota_msg);
+            
+            // Start OTA process
+            if (OTA_Start(config_version)) {
+                SUBGHZ_DebugPrint("OTA_STARTED_SUCCESS");
+            } else {
+                SUBGHZ_DebugPrint("OTA_START_FAILED");
             }
             return;
         }

@@ -70,7 +70,8 @@ Application/User/SubGHz_Phy/App/subghz_phy_app.o: \
  /home/enis/workSpace/IQ-Yazilim/MusteriyeGonderilenKod_v00/IQ_Project-main_Ase8bZz/IQ_Project-main/Gateway_v0.1/SubGHz_Phy_PingPong/STM32CubeIDE/Application/User/Core/EMPA_MqttAws.h \
  /home/enis/workSpace/IQ-Yazilim/MusteriyeGonderilenKod_v00/IQ_Project-main_Ase8bZz/IQ_Project-main/Gateway_v0.1/SubGHz_Phy_PingPong/STM32CubeIDE/Application/User/Core/myESP32AT.h \
  /home/enis/workSpace/IQ-Yazilim/MusteriyeGonderilenKod_v00/IQ_Project-main_Ase8bZz/IQ_Project-main/Gateway_v0.1/SubGHz_Phy_PingPong/STM32CubeIDE/Application/User/Core/common.h \
- ../../Core/Inc/stm32wlxx_it.h
+ ../../Core/Inc/stm32wlxx_it.h \
+ /home/enis/workSpace/IQ-Yazilim/MusteriyeGonderilenKod_v00/IQ_Project-main_Ase8bZz/IQ_Project-main/Gateway_v0.1/SubGHz_Phy_PingPong/STM32CubeIDE/Application/User/Core/ota_manager.h
 ../../Core/Inc/platform.h:
 ../../Drivers/CMSIS/Device/ST/STM32WLxx/Include/stm32wlxx.h:
 ../../Drivers/CMSIS/Device/ST/STM32WLxx/Include/stm32wl55xx.h:
@@ -144,3 +145,4 @@ Application/User/SubGHz_Phy/App/subghz_phy_app.o: \
 /home/enis/workSpace/IQ-Yazilim/MusteriyeGonderilenKod_v00/IQ_Project-main_Ase8bZz/IQ_Project-main/Gateway_v0.1/SubGHz_Phy_PingPong/STM32CubeIDE/Application/User/Core/myESP32AT.h:
 /home/enis/workSpace/IQ-Yazilim/MusteriyeGonderilenKod_v00/IQ_Project-main_Ase8bZz/IQ_Project-main/Gateway_v0.1/SubGHz_Phy_PingPong/STM32CubeIDE/Application/User/Core/common.h:
 ../../Core/Inc/stm32wlxx_it.h:
+/home/enis/workSpace/IQ-Yazilim/MusteriyeGonderilenKod_v00/IQ_Project-main_Ase8bZz/IQ_Project-main/Gateway_v0.1/SubGHz_Phy_PingPong/STM32CubeIDE/Application/User/Core/ota_manager.h:

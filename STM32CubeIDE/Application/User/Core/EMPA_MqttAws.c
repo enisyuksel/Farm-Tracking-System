@@ -101,6 +101,13 @@ void HandleConfigMessage(const char* message) {
 
 void MY_MqttAwsProcess(void)
 {
+	// OTA Check: Skip MQTT processing if OTA is active
+	extern uint8_t OTA_IsActive(void);
+	if (OTA_IsActive()) {
+		MQTT_DebugPrint("MQTT_BLOCKED_OTA");
+		return;
+	}
+	
 	EMPA_Section = EMPA_SECTION_MQTT;
 
 	// Task yapısına uyarlandı - her çağrıda bir state işle

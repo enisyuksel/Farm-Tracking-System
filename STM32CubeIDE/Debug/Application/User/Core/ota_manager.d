@@ -1,6 +1,6 @@
-Application/User/Core/main.o: \
- /home/enis/workSpace/IQ-Yazilim/MusteriyeGonderilenKod_v00/IQ_Project-main_Ase8bZz/IQ_Project-main/Gateway_v0.1/SubGHz_Phy_PingPong/Core/Src/main.c \
- ../../Core/Inc/main.h \
+Application/User/Core/ota_manager.o: \
+ ../Application/User/Core/ota_manager.c \
+ ../Application/User/Core/ota_manager.h \
  ../../Drivers/STM32WLxx_HAL_Driver/Inc/stm32wlxx_hal.h \
  ../../Core/Inc/stm32wlxx_hal_conf.h \
  ../../Drivers/STM32WLxx_HAL_Driver/Inc/stm32wlxx_hal_dma.h \
@@ -42,25 +42,12 @@ Application/User/Core/main.o: \
  ../../Drivers/STM32WLxx_HAL_Driver/Inc/stm32wlxx_hal_uart.h \
  ../../Drivers/STM32WLxx_HAL_Driver/Inc/stm32wlxx_hal_uart_ex.h \
  ../../Drivers/STM32WLxx_HAL_Driver/Inc/stm32wlxx_ll_system.h \
- ../../Core/Inc/usart.h ../../Core/Inc/main.h \
- ../../SubGHz_Phy/App/app_subghz_phy.h ../../Core/Inc/tim.h \
- ../../Core/Inc/gpio.h \
- /home/enis/workSpace/IQ-Yazilim/MusteriyeGonderilenKod_v00/IQ_Project-main_Ase8bZz/IQ_Project-main/Gateway_v0.1/SubGHz_Phy_PingPong/STM32CubeIDE/Application/User/Core/common.h \
- /home/enis/workSpace/IQ-Yazilim/MusteriyeGonderilenKod_v00/IQ_Project-main_Ase8bZz/IQ_Project-main/Gateway_v0.1/SubGHz_Phy_PingPong/STM32CubeIDE/Application/User/Core/EMPA_MqttAws.h \
- /home/enis/workSpace/IQ-Yazilim/MusteriyeGonderilenKod_v00/IQ_Project-main_Ase8bZz/IQ_Project-main/Gateway_v0.1/SubGHz_Phy_PingPong/STM32CubeIDE/Application/User/Core/myESP32AT.h \
- /home/enis/workSpace/IQ-Yazilim/MusteriyeGonderilenKod_v00/IQ_Project-main_Ase8bZz/IQ_Project-main/Gateway_v0.1/SubGHz_Phy_PingPong/STM32CubeIDE/Application/User/Core/common.h \
- /home/enis/workSpace/IQ-Yazilim/MusteriyeGonderilenKod_v00/IQ_Project-main_Ase8bZz/IQ_Project-main/Gateway_v0.1/SubGHz_Phy_PingPong/STM32CubeIDE/Application/User/Core/myESP32AT.h \
- ../../Utilities/sequencer/stm32_seq.h ../../Core/Inc/utilities_def.h \
- ../../SubGHz_Phy/App/subghz_phy_app.h ../../Core/Inc/sys_app.h \
- ../../Core/Inc/sys_conf.h \
- ../../Utilities/trace/adv_trace/stm32_adv_trace.h \
- ../../Core/Inc/utilities_conf.h \
+ ../../Utilities/timer/stm32_timer.h \
  ../../Drivers/CMSIS/Include/cmsis_compiler.h \
- ../../Utilities/misc/stm32_mem.h \
+ ../../Core/Inc/utilities_conf.h ../../Utilities/misc/stm32_mem.h \
  ../../Utilities/misc/stm32_tiny_vsnprintf.h \
- ../../Core/Inc/utilities_def.h \
- /home/enis/workSpace/IQ-Yazilim/MusteriyeGonderilenKod_v00/IQ_Project-main_Ase8bZz/IQ_Project-main/Gateway_v0.1/SubGHz_Phy_PingPong/STM32CubeIDE/Application/User/Core/ota_manager.h
-../../Core/Inc/main.h:
+ ../../Core/Inc/utilities_def.h
+../Application/User/Core/ota_manager.h:
 ../../Drivers/STM32WLxx_HAL_Driver/Inc/stm32wlxx_hal.h:
 ../../Core/Inc/stm32wlxx_hal_conf.h:
 ../../Drivers/STM32WLxx_HAL_Driver/Inc/stm32wlxx_hal_dma.h:
@@ -102,25 +89,9 @@ Application/User/Core/main.o: \
 ../../Drivers/STM32WLxx_HAL_Driver/Inc/stm32wlxx_hal_uart.h:
 ../../Drivers/STM32WLxx_HAL_Driver/Inc/stm32wlxx_hal_uart_ex.h:
 ../../Drivers/STM32WLxx_HAL_Driver/Inc/stm32wlxx_ll_system.h:
-../../Core/Inc/usart.h:
-../../Core/Inc/main.h:
-../../SubGHz_Phy/App/app_subghz_phy.h:
-../../Core/Inc/tim.h:
-../../Core/Inc/gpio.h:
-/home/enis/workSpace/IQ-Yazilim/MusteriyeGonderilenKod_v00/IQ_Project-main_Ase8bZz/IQ_Project-main/Gateway_v0.1/SubGHz_Phy_PingPong/STM32CubeIDE/Application/User/Core/common.h:
-/home/enis/workSpace/IQ-Yazilim/MusteriyeGonderilenKod_v00/IQ_Project-main_Ase8bZz/IQ_Project-main/Gateway_v0.1/SubGHz_Phy_PingPong/STM32CubeIDE/Application/User/Core/EMPA_MqttAws.h:
-/home/enis/workSpace/IQ-Yazilim/MusteriyeGonderilenKod_v00/IQ_Project-main_Ase8bZz/IQ_Project-main/Gateway_v0.1/SubGHz_Phy_PingPong/STM32CubeIDE/Application/User/Core/myESP32AT.h:
-/home/enis/workSpace/IQ-Yazilim/MusteriyeGonderilenKod_v00/IQ_Project-main_Ase8bZz/IQ_Project-main/Gateway_v0.1/SubGHz_Phy_PingPong/STM32CubeIDE/Application/User/Core/common.h:
-/home/enis/workSpace/IQ-Yazilim/MusteriyeGonderilenKod_v00/IQ_Project-main_Ase8bZz/IQ_Project-main/Gateway_v0.1/SubGHz_Phy_PingPong/STM32CubeIDE/Application/User/Core/myESP32AT.h:
-../../Utilities/sequencer/stm32_seq.h:
-../../Core/Inc/utilities_def.h:
-../../SubGHz_Phy/App/subghz_phy_app.h:
-../../Core/Inc/sys_app.h:
-../../Core/Inc/sys_conf.h:
-../../Utilities/trace/adv_trace/stm32_adv_trace.h:
-../../Core/Inc/utilities_conf.h:
+../../Utilities/timer/stm32_timer.h:
 ../../Drivers/CMSIS/Include/cmsis_compiler.h:
+../../Core/Inc/utilities_conf.h:
 ../../Utilities/misc/stm32_mem.h:
 ../../Utilities/misc/stm32_tiny_vsnprintf.h:
 ../../Core/Inc/utilities_def.h:
-/home/enis/workSpace/IQ-Yazilim/MusteriyeGonderilenKod_v00/IQ_Project-main_Ase8bZz/IQ_Project-main/Gateway_v0.1/SubGHz_Phy_PingPong/STM32CubeIDE/Application/User/Core/ota_manager.h:

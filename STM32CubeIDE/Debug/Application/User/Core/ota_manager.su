@@ -1,0 +1,7 @@
+../Application/User/Core/ota_manager.c:10:13:OTA_DebugPrint	16	static
+../Application/User/Core/ota_manager.c:30:6:OTA_Init	16	static
+../Application/User/Core/ota_manager.c:44:9:OTA_Start	96	static
+../Application/User/Core/ota_manager.c:72:9:OTA_IsActive	0	static
+../Application/User/Core/ota_manager.c:79:6:OTA_Complete	16	static
+../Application/User/Core/ota_manager.c:104:13:OTA_TimerCallback	8	static
+../Application/User/Core/ota_manager.c:97:13:OTA_GetStatus	0	static
