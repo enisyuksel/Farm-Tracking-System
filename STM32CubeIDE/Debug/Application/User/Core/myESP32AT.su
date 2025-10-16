@@ -1,3 +1,4 @@
+../Application/User/Core/myESP32AT.c:1629:13:HTTP_DebugPrint	16	static
 ../Application/User/Core/myESP32AT.c:616:21:Wifi_CheckResponse	8	static
 ../Application/User/Core/myESP32AT.c:639:6:parse_wifi_info	32	static
 ../Application/User/Core/myESP32AT.c:924:19:Wifi_SendCommand	8	static
@@ -31,3 +32,5 @@
 ../Application/User/Core/myESP32AT.c:1597:6:LED_MqttTXBlink	8	static
 ../Application/User/Core/myESP32AT.c:1603:6:LED_MqttRXBlink	8	static
 ../Application/User/Core/myESP32AT.c:1609:6:LED_Mqttconnected	8	static
+../Application/User/Core/myESP32AT.c:1641:20:Wifi_HttpGetContentLength	1616	static
+../Application/User/Core/myESP32AT.c:1695:20:Wifi_HttpGet	600	static

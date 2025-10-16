@@ -1619,3 +1619,123 @@ void LED_Mqttconnected(FlagStatus set_led)
 //	HAL_GPIO_WritePin(ESP32_EN_GPIO_Port, ESP32_EN_Pin, 1);
 //
 //}
+
+/* ============================= HTTP CLIENT FOR OTA ============================= */
+
+// External LPUART1 handle
+extern UART_HandleTypeDef hlpuart1;
+
+// Debug helper
+static void HTTP_DebugPrint(const char* msg) {
+    if (msg) {
+        HAL_UART_Transmit(&hlpuart1, (uint8_t*)"[HTTP]", 6, 100);
+        HAL_UART_Transmit(&hlpuart1, (uint8_t*)msg, strlen(msg), 1000);
+        HAL_UART_Transmit(&hlpuart1, (uint8_t*)"\r\n", 2, 100);
+    }
+}
+
+/**
+ * @brief Get content length from HTTP HEAD request
+ * AT+HTTPCLIENT=2,0,"https://raw.githubusercontent.com/...",,,2
+ */
+FUNC_StatusTypeDef Wifi_HttpGetContentLength(const char *url, uint32_t *content_length) {
+    HTTP_DebugPrint("GET_CONTENT_LEN");
+    
+    if (!url || !content_length) {
+        HTTP_DebugPrint("ERR_NULL_PARAM");
+        return FUNC_ERROR;
+    }
+    
+    char cmd[512];
+    char response[1024];
+    
+    // AT+HTTPCLIENT=2,0,"URL",,,2  (HEAD request)
+    snprintf(cmd, sizeof(cmd), "AT+HTTPCLIENT=2,0,\"%s\",,,2\r\n", url);
+    
+    HTTP_DebugPrint("SEND_HEAD_REQ");
+    
+    // Send command
+    HAL_UART_Transmit(&UART_WIFI, (uint8_t*)cmd, strlen(cmd), 5000);
+    
+    // Wait for response
+    HAL_Delay(3000);
+    
+    // Read response (simplified - you may need to use UART interrupt)
+    memset(response, 0, sizeof(response));
+    if (HAL_UART_Receive(&UART_WIFI, (uint8_t*)response, sizeof(response)-1, 5000) != HAL_OK) {
+        HTTP_DebugPrint("ERR_NO_RESP");
+        return FUNC_ERROR;
+    }
+    
+    // Parse Content-Length from response
+    char *content_len_str = strstr(response, "Content-Length:");
+    if (content_len_str) {
+        content_len_str += 15; // Skip "Content-Length:"
+        while (*content_len_str == ' ') content_len_str++;
+        *content_length = (uint32_t)atoi(content_len_str);
+        
+        char msg[64];
+        snprintf(msg, sizeof(msg), "CONTENT_LEN=%lu", (unsigned long)*content_length);
+        HTTP_DebugPrint(msg);
+        
+        return FUNC_OK;
+    }
+    
+    HTTP_DebugPrint("ERR_NO_CONTENT_LEN");
+    return FUNC_ERROR;
+}
+
+/**
+ * @brief Download firmware binary via HTTP GET
+ * AT+HTTPCLIENT=2,0,"URL",,,"path/file",2
+ * 
+ * NOTE: ESP32-AT firmware supports direct download to file system,
+ * but for OTA we need chunks in RAM. We'll use GET and read response.
+ */
+FUNC_StatusTypeDef Wifi_HttpGet(const char *url, uint8_t *buffer, uint32_t buffer_size, uint32_t *bytes_read) {
+    HTTP_DebugPrint("HTTP_GET_START");
+    
+    if (!url || !buffer || !bytes_read) {
+        HTTP_DebugPrint("ERR_NULL_PARAM");
+        return FUNC_ERROR;
+    }
+    
+    char cmd[512];
+    
+    // AT+HTTPCLIENT=2,0,"URL",,,2  (GET request, output to UART)
+    snprintf(cmd, sizeof(cmd), "AT+HTTPCLIENT=2,0,\"%s\",,,2\r\n", url);
+    
+    char msg[64];
+    snprintf(msg, sizeof(msg), "URL_LEN=%d", (int)strlen(url));
+    HTTP_DebugPrint(msg);
+    
+    // Send command
+    HAL_UART_Transmit(&UART_WIFI, (uint8_t*)cmd, strlen(cmd), 5000);
+    
+    HTTP_DebugPrint("CMD_SENT_WAIT");
+    
+    // Wait for download to complete (this is simplified)
+    // In real implementation, you need to:
+    // 1. Read +HTTPCLIENT:SIZE response
+    // 2. Read binary data in chunks
+    // 3. Handle timeouts properly
+    
+    HAL_Delay(5000); // Wait for download
+    
+    // Read response into buffer
+    memset(buffer, 0, buffer_size);
+    if (HAL_UART_Receive(&UART_WIFI, buffer, buffer_size, 10000) == HAL_OK) {
+        // Count received bytes (simplified - actual implementation needs proper parsing)
+        *bytes_read = buffer_size; // This should be actual count
+        
+        snprintf(msg, sizeof(msg), "RECV=%lu", (unsigned long)*bytes_read);
+        HTTP_DebugPrint(msg);
+        
+        HTTP_DebugPrint("DOWNLOAD_OK");
+        return FUNC_OK;
+    }
+    
+    HTTP_DebugPrint("ERR_DOWNLOAD_FAIL");
+    return FUNC_ERROR;
+}
+

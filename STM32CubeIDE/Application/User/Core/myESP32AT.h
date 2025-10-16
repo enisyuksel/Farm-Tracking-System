@@ -380,6 +380,26 @@ FUNC_StatusTypeDef Wifi_MqttPubRaw2( char *buffer, char *topic, uint16_t dataSiz
 FUNC_StatusTypeDef Wifi_GetMAC(char *buffer);
 void getUniqueID3(char charUniqueID[], const char *buffer);
 void parse_json_to_struct(const char *json_string, MQTTShadow *mqttShadow);
+
+/* HTTP Client Functions for OTA */
+/**
+ * @brief Download firmware binary from URL via HTTP GET
+ * @param url Full URL to download (e.g., "https://raw.githubusercontent.com/...")
+ * @param buffer Buffer to store downloaded data
+ * @param buffer_size Maximum buffer size
+ * @param bytes_read Pointer to store actual bytes read
+ * @return FUNC_OK if successful, FUNC_ERROR otherwise
+ */
+FUNC_StatusTypeDef Wifi_HttpGet(const char *url, uint8_t *buffer, uint32_t buffer_size, uint32_t *bytes_read);
+
+/**
+ * @brief Get content length from HTTP response headers
+ * @param url URL to query
+ * @param content_length Pointer to store content length
+ * @return FUNC_OK if successful
+ */
+FUNC_StatusTypeDef Wifi_HttpGetContentLength(const char *url, uint32_t *content_length);
+
 #ifdef __cplusplus
 }
 #endif

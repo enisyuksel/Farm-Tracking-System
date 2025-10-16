@@ -46,7 +46,8 @@ Application/User/Core/ota_manager.o: \
  ../../Drivers/CMSIS/Include/cmsis_compiler.h \
  ../../Core/Inc/utilities_conf.h ../../Utilities/misc/stm32_mem.h \
  ../../Utilities/misc/stm32_tiny_vsnprintf.h \
- ../../Core/Inc/utilities_def.h
+ ../../Core/Inc/utilities_def.h ../Application/User/Core/myESP32AT.h \
+ ../Application/User/Core/common.h ../../Core/Inc/main.h
 ../Application/User/Core/ota_manager.h:
 ../../Drivers/STM32WLxx_HAL_Driver/Inc/stm32wlxx_hal.h:
 ../../Core/Inc/stm32wlxx_hal_conf.h:
@@ -95,3 +96,6 @@ Application/User/Core/ota_manager.o: \
 ../../Utilities/misc/stm32_mem.h:
 ../../Utilities/misc/stm32_tiny_vsnprintf.h:
 ../../Core/Inc/utilities_def.h:
+../Application/User/Core/myESP32AT.h:
+../Application/User/Core/common.h:
+../../Core/Inc/main.h:

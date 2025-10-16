@@ -36,6 +36,7 @@
 #include "subghz_phy_app.h"
 #include "sys_app.h"
 #include "ota_manager.h"  // OTA Manager
+#include "app_version.h"  // Firmware Version
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -124,15 +125,22 @@ int main(void)
 		if (flag_mqtt_connected == SET && lora_started == 0) {
 			printf("*** MQTT Connected - Starting LoRa Gateway ***\n\r");
 
-			// Send MQTT connection test message
+			// Send firmware version via MQTT
 			extern char mqttPacketBuffer[];
 			extern MQTT_Config mqttConfig;
-			char test_message[] = "{\"type\":\"gateway_status\",\"status\":\"connected\",\"gw\":\"GW-001\",\"timestamp\":0,\"message\":\"Gateway MQTT connection successful\"}";
-			printf("*** Sending MQTT test message ***\n\r");
-			if (Wifi_MqttPubRaw2(mqttPacketBuffer, mqttConfig.pubtopic, strlen(test_message), test_message, QOS_0, RTN_0, POLLING_MODE) == FUNC_OK) {
-				printf("*** MQTT test message sent successfully ***\n\r");
+			char version_message[200];
+			snprintf(version_message, sizeof(version_message), 
+				"{\"type\":\"gateway_status\",\"status\":\"connected\",\"gw\":\"GW-001\",\"fw_version\":\"v%d.%d.%d\",\"timestamp\":%lu}",
+				(uint8_t)(APP_VERSION_MAIN), (uint8_t)(APP_VERSION_SUB1), (uint8_t)(APP_VERSION_SUB2),
+				HAL_GetTick());
+			
+			printf("*** Sending firmware version: v%d.%d.%d ***\n\r",
+				(uint8_t)(APP_VERSION_MAIN), (uint8_t)(APP_VERSION_SUB1), (uint8_t)(APP_VERSION_SUB2));
+			
+			if (Wifi_MqttPubRaw2(mqttPacketBuffer, mqttConfig.pubtopic, strlen(version_message), version_message, QOS_0, RTN_0, POLLING_MODE) == FUNC_OK) {
+				printf("*** Firmware version sent successfully ***\n\r");
 			} else {
-				printf("*** MQTT test message failed ***\n\r");
+				printf("*** Firmware version send failed ***\n\r");
 			}
 
 			StartLoRaGateway();

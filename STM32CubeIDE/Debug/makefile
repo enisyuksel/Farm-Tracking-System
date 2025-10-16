@@ -58,6 +58,12 @@ default.size.stdout \
 OBJDUMP_LIST += \
 SubGHz_Phy_PingPong.list \
 
+OBJCOPY_HEX += \
+SubGHz_Phy_PingPong.hex \
+
+OBJCOPY_BIN += \
+SubGHz_Phy_PingPong.bin \
+
 
 # All Target
 all: main-build
@@ -81,12 +87,22 @@ SubGHz_Phy_PingPong.list: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_D
 	@echo 'Finished building: $@'
 	@echo ' '
 
+SubGHz_Phy_PingPong.hex: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-objcopy  -O ihex $(EXECUTABLES) "SubGHz_Phy_PingPong.hex"
+	@echo 'Finished building: $@'
+	@echo ' '
+
+SubGHz_Phy_PingPong.bin: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-objcopy  -O binary $(EXECUTABLES) "SubGHz_Phy_PingPong.bin"
+	@echo 'Finished building: $@'
+	@echo ' '
+
 # Other Targets
 clean:
-	-$(RM) SubGHz_Phy_PingPong.elf SubGHz_Phy_PingPong.list SubGHz_Phy_PingPong.map default.size.stdout
+	-$(RM) SubGHz_Phy_PingPong.bin SubGHz_Phy_PingPong.elf SubGHz_Phy_PingPong.hex SubGHz_Phy_PingPong.list SubGHz_Phy_PingPong.map default.size.stdout
 	-@echo ' '
 
-secondary-outputs: $(SIZE_OUTPUT) $(OBJDUMP_LIST)
+secondary-outputs: $(SIZE_OUTPUT) $(OBJDUMP_LIST) $(OBJCOPY_HEX) $(OBJCOPY_BIN)
 
 fail-specified-linker-script-missing:
 	@echo 'Error: Cannot find the specified linker script. Check the linker settings in the build configuration.'
